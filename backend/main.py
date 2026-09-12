@@ -22,7 +22,14 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -201,71 +208,169 @@ SYSTEM_STATUS = {
     "sovereignty_status": "CONFIRMED",
 }
 
-# Simulated mock responses
+# Rich simulated domain responses for MRPL workflows
 MOCK_RESPONSES = {
-    "inspection": """**Agentic Workflow Initiated — Inspection Report Processing**
+    "sop_clauses": """### 📋 Pressure Vessel Inspection — Verified SOP Clauses
 
-**Stage 1 — OCR/Vision Extraction**
-→ Scanning document with PaddleOCR + Vision model (llava:13b) [ON-PREMISE]
-→ Extracted: 3 pages, 2 tables, 1 handwritten annotation section
-→ OCR Confidence: 91%
+**Knowledge Base:** `inspection-sops` · `safety-manuals` (Local Qdrant DB)  
+**Verification:** All clauses cross-referenced against active MRPL standards and OISD guidelines.
 
-**Stage 2 — RAG Knowledge Search**
-→ Querying local Qdrant vector database (inspection-sops, safety-manuals collections)
-→ Retrieved 5 relevant SOP clauses:
-  • OISD-117 §4.3 — Inspection frequency for pressure vessels
-  • IS 2825:1969 §6.1 — Acceptance criteria for weld quality
-  • MRPL SOP-QI-22 §2.4 — CDU inspection sign-off procedure
+---
 
-**Stage 3 — AI Reasoning & Drafting**
-→ Model: llama3.1:8b-instruct [ON-PREMISE GPU]
-→ Analyzing findings against retrieved SOP clauses
-→ Drafting structured approval note with citations
+#### 📌 Relevant Regulatory & Standard Operating Clauses
 
-**Stage 4 — Document Generation**
-→ Generating approval_note_CDU-2891.docx
-→ Appending audit trail: sources, models, timestamps
+| Standard / Document | Clause ID | Requirement Summary | Criticality | Compliance Status |
+|:---|:---|:---|:---:|:---:|
+| **OISD-STD-117** | **§4.3.1** | External visual & ultrasonic thickness gauging every 24 months | 🔴 High | ✅ Compliant (Current: 18 mo) |
+| **IS 2825:1969** | **§6.1.4** | Hydrostatic pressure testing at $1.5 \\times$ Maximum Allowable Working Pressure | 🔴 Critical | ✅ Certified (18.5 bar test) |
+| **MRPL SOP-QI-22** | **§2.4.2** | Dual Non-Destructive Testing (NDT) radiograph on primary weld seams | 🟡 Medium | ✅ 100% Weld Inspection Clear |
+| **ASME Sec VIII Div 1** | **UG-99** | Hydrostatic test hold time minimum 30 minutes with zero pressure drop | 🔴 Critical | ✅ Pressure Drop: 0.00 bar |
+| **MRPL SOP-SAF-09** | **§1.8** | Confined space entry permit and continuous VOC monitoring prior to entry | 🟡 Safety | ✅ Gas Free Certificate Attached |
 
-✅ **Approval Note Ready** — Requires human review before finalization.
-*0 external calls made. All processing on MRPL GPU server.*""",
+---
 
-    "code": """**Code Specialist Model Assigned (qwen2.5-coder:7b)**
+#### 🔍 Key Inspection Protocols
+- **Corrosion Allowance**: Minimum allowable shell thickness is **14.2 mm** (Measured: **16.8 mm**, Remaining Life: **14.5 yrs**).
+- **Safety Relief Valve (SRV)**: Bench calibrated at **12.0 bar** on 2026-08-15 (Tag: `SRV-CDU-042`).
+- **Surface Condition**: Zero pitting or circumferential cracking detected along nozzle welds.
+
+---
+
+> 🔒 **Sovereignty Note:** Retrieved from local air-gapped vector store. Zero external network egress.""",
+
+    "inspection": """### 📄 Executive Approval Note — Unit Inspection Review
+
+**Reference No:** `MRPL/QI/APR/2026-2891`  
+**Subject:** Technical Approval for Continued Operation of Crude Distillation Unit (CDU-II)  
+**Inspector:** Rina Sharma (Quality Inspection Dept.)
+
+---
+
+#### 📊 Inspection Assessment Summary
+
+| Component | Measured Value | Allowable Limit | Test Method | Outcome |
+|:---|:---:|:---:|:---:|:---:|
+| **Shell Thickness** | `16.8 mm` | `Min 14.2 mm` | Ultrasonic Gauge (UTM) | ✅ Acceptable |
+| **Top Dish Head** | `15.1 mm` | `Min 13.5 mm` | UTM (Grid A-F) | ✅ Acceptable |
+| **Nozzle Neck N-1** | `12.4 mm` | `Min 10.8 mm` | Dye Penetrant (DPT) | ✅ No Defects |
+| **Operating Pressure** | `8.4 bar` | `Max 12.0 bar` | Digital Transducer | ✅ Normal Range |
+| **Operating Temp** | `342 °C` | `Max 380 °C` | Thermocouple Array | ✅ Stable |
+
+---
+
+#### 📝 Executive Observations & Sign-Off Recommendation
+1. **Structural Integrity**: The pressure vessel complies fully with **OISD-117** and **MRPL SOP-QI-22** parameters.
+2. **Next Inspection Due**: Scheduled for **September 2028** (24-month statutory interval).
+3. **Approval Status**: **APPROVED FOR CONTINUED SERVICE** subject to standard quarterly monitoring.
+
+---
+
+> 📦 **Generated Deliverables**: Official Approval Note (`.docx`) and Compliance Spreadsheet (`.xlsx`) prepared below.""",
+
+    "code": """### 🐍 CDU Mass Balance Calculation & Sandbox Execution
+
+**Engine:** Local Python 3.11 Sandbox (`--network=none`, isolated container)  
+**Model:** Code Specialist (`qwen2.5-coder:7b-q4_K_M`)
 
 ```python
-# Mass Balance Calculation — Generated by MRPL AI Workbench
-def calculate_mass_balance(feed_rate, product_yields, losses):
-    total_products = sum(product_yields.values())
-    total_out = total_products + losses
-    imbalance = feed_rate - total_out
-    efficiency = (total_products / feed_rate) * 100
+# MRPL Crude Distillation Unit (CDU-II) Mass Balance Script
+# Author: Dev Nair | Process Engineering Dept.
+
+def compute_cdu_mass_balance(crude_feed_kg_h, yields_kg_h, flaring_losses_kg_h):
+    total_products = sum(yields_kg_h.values())
+    total_outflow = total_products + flaring_losses_kg_h
+    mass_imbalance = crude_feed_kg_h - total_outflow
+    yield_efficiency = (total_products / crude_feed_kg_h) * 100
+    
     return {
-        'feed_rate_kg_h': feed_rate,
-        'total_products_kg_h': total_products,
-        'losses_kg_h': losses,
-        'imbalance_kg_h': imbalance,
-        'efficiency_pct': round(efficiency, 2)
+        "feed_rate_kg_h": crude_feed_kg_h,
+        "total_yield_kg_h": total_products,
+        "losses_kg_h": flaring_losses_kg_h,
+        "imbalance_kg_h": round(mass_imbalance, 2),
+        "efficiency_pct": round(yield_efficiency, 2),
+        "status": "BALANCED" if abs(mass_imbalance) < (0.005 * crude_feed_kg_h) else "DISCREPANCY"
     }
+
+# Input Parameters (Real-time refinery telemetry)
+feed_in = 450000.0  # 450 T/h
+products = {
+    "LPG": 13500.0,
+    "Light Naphtha": 49500.0,
+    "Heavy Naphtha": 67500.0,
+    "Kerosene / ATF": 58500.0,
+    "High Speed Diesel (HSD)": 180000.0,
+    "Reduced Crude Oil (RCO)": 76500.0
+}
+losses = 4500.0  # Offgas + flaring
+
+result = compute_cdu_mass_balance(feed_in, products, losses)
+print("MASS BALANCE RESULT:", result)
 ```
 
-**Sandbox Execution (--network none):**
+#### ⚡ Sandbox Execution Telemetry
 ```
-✅ Exit Code: 0
-Output: {'feed_rate_kg_h': 5000, 'efficiency_pct': 96.4}
+[SANDBOX] Container: docker.internal/sandbox-runner:latest
+[SANDBOX] Network isolation: ACTIVE (Egress socket blocked)
+[SANDBOX] Execution Time: 34ms | Memory: 14.8 MB | Exit Code: 0
 ```
 
-Deliverables: mass_balance.py + execution_log.txt ready for download.
-*0 external calls. Sandbox: network-disabled Docker container.*""",
+#### 📊 Stream Breakdown & Yield Percentage
 
-    "default": """**Processing on MRPL Sovereign AI Workbench**
+| Stream Name | Mass Flow (kg/h) | Yield Share (%) | Quality Grade |
+|:---|:---:|:---:|:---:|
+| **Crude Feed (Inflow)** | `450,000` | `100.00%` | Arab Heavy / Maya Blend |
+| **High Speed Diesel (HSD)** | `180,000` | `40.00%` | BS-VI Compliant (10 ppm S) |
+| **Reduced Crude Oil (RCO)** | `76,500` | `17.00%` | Vacuum Unit Feed |
+| **Heavy Naphtha** | `67,500` | `15.00%` | Reformer Feed |
+| **Kerosene / ATF** | `58,500` | `13.00%` | Aviation Turbine Fuel |
+| **Light Naphtha** | `49,500` | `11.00%` | Petrochemical Feed |
+| **LPG** | `13,500` | `3.00%` | Domestic Bottling |
+| **Total Outflow + Losses** | `450,000` | **99.00% Net Yield** | ✅ Mass Balanced (0.00% Discrepancy) |
 
-Request routed to General Reasoning model (llama3.1:8b) running on local GPU.
+---
 
-Based on your role permissions, accessing:
-- Authorized knowledge collections (local Qdrant vector DB)
-- Available tools (RAG retriever, document generator)
+> 📦 **Artifacts Available:** `cdu_mass_balance.py` script and `execution_log.txt` generated.""",
 
-Searching internal knowledge base for relevant SOPs and manuals...
-*All processing on-premise. Egress monitor: 0 external calls.*""",
+    "presentation": """### 📊 Executive PowerPoint Brief — Board Meeting Summary
+
+**Document:** Board of Directors Review Meeting Minutes  
+**Output:** 5-Slide Executive Presentation Outline (`.pptx`)
+
+---
+
+#### 📑 Slide Deck Structure & Content Outline
+
+| Slide # | Slide Title | Key Content & Strategic Highlights | Visual Element |
+|:---:|:---|:---|:---|
+| **01** | **Executive Summary & Operational Throughput** | • Crude processing: **16.2 MMTPA** (108% capacity utilization)<br>• Zero statutory non-compliances recorded in Q2 | 📊 Gauge Chart |
+| **02** | **Refinery Financial Performance** | • Gross Refining Margin (GRM): **$9.85 / bbl**<br>• Net Profit: **₹1,420 Cr** (+14% YoY increase) | 📈 Trend Line |
+| **03** | **Health, Safety & Environmental Record** | • Lost Time Injury Frequency (LTIF): **0.00**<br>• SOx/NOx emissions 18% below OISD upper threshold | 🛡️ Shield Metric |
+| **04** | **Strategic Expansion & Green Energy** | • 2G Ethanol Bio-Refinery project completion at 84%<br>• Green Hydrogen electrolyzer pilot commissioned | 🌿 Roadmap Timeline |
+| **05** | **Action Items & Board Approvals Required** | • CAPEX sanction for Desalter Upgrade (CDU-III)<br>• Adoption of on-premise AI automation guidelines | ✅ Sign-off Matrix |
+
+---
+
+> 📦 **Deliverable:** Full executive presentation generated: `MRPL_Board_Meeting_Summary.pptx`.""",
+
+    "default": """### 💡 Sovereign AI Analysis & Response
+
+**Model:** `llama3.1:8b-instruct` (Running on Local GPU Cluster)  
+**Security:** Zero external data transmission · 100% On-Premise Execution
+
+---
+
+#### 📌 Overview & Findings
+Your inquiry has been processed against authorized MRPL operational datasets and departmental reference archives.
+
+1. **Policy & Compliance Alignment**: The request complies with MRPL internal operational guidelines, cybersecurity governance protocols, and Miniratna PSU administrative procedures.
+2. **Actionable Recommendations**:
+   - Verify specific equipment and departmental tags (`MRPL/QI`, `MRPL/PE`, `MRPL/ADM`).
+   - All generated drafts and calculations must be formally validated by the designated supervising authority prior to external dissemination.
+3. **Audit Readiness**: This interaction has been securely committed to the tamper-proof local audit hash-chain.
+
+---
+
+> 🛡️ **Air-Gapped Guarantee:** Confined strictly to the internal network (`192.168.10.0/24`). Zero egress calls."""
 }
 
 
@@ -326,48 +431,80 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
-    """Simulate agentic workflow with hardcoded responses."""
-    await asyncio.sleep(1.5)  # Simulate model inference latency
+    """Simulate realistic multimodal on-premise agentic workflow latency."""
+    # Authentic on-premise GPU model inference + RAG + verification latency
+    actual_latency = random.uniform(4.8, 6.2)
+    await asyncio.sleep(actual_latency)
 
     msg_lower = req.message.lower()
-    if any(k in msg_lower for k in ["inspection", "report", "approval", "sop", "oisd"]):
+
+    if any(k in msg_lower for k in ["clause", "pressure vessel", "oisd-117", "is 2825", "find relevant sop"]):
+        response = MOCK_RESPONSES["sop_clauses"]
+        steps = [
+            {"stage": "Plan", "status": "done", "note": "Analyzed query: RAG knowledge search on pressure vessel SOPs"},
+            {"stage": "Route", "status": "done", "note": "Dispatched to Qdrant vector DB + LLaMA-3-70B model"},
+            {"stage": "Act", "status": "done", "note": "Retrieved 5 standard clauses from OISD-117 and IS 2825"},
+            {"stage": "Observe", "status": "done", "note": "Validated compliance criteria against active MRPL standards"},
+            {"stage": "Deliver", "status": "done", "note": "Compiled comprehensive SOP matrix and checklist"},
+        ]
+        deliverables = ["SOP_Compliance_Report_OISD117.docx"]
+        model_used = "Llama-3.1-70B-Instruct"
+
+    elif any(k in msg_lower for k in ["inspection", "approval", "review this inspection", "approval note"]):
         response = MOCK_RESPONSES["inspection"]
         steps = [
-            {"stage": "Plan", "status": "done", "note": "Decomposed into OCR → RAG → Draft → DocGen"},
-            {"stage": "Route", "status": "done", "note": "Vision (OCR) + General (reasoning) models selected"},
-            {"stage": "Act", "status": "done", "note": "OCR: 3 pages extracted. RAG: 5 SOP clauses retrieved."},
-            {"stage": "Observe", "status": "done", "note": "Confidence 91%. Schema validated."},
-            {"stage": "Deliver", "status": "done", "note": "approval_note.docx generated with audit appendix."},
+            {"stage": "Plan", "status": "done", "note": "Decomposed workflow into Vision OCR → RAG Search → Draft Note"},
+            {"stage": "Route", "status": "done", "note": "Vision Engine (PaddleOCR) + General Reasoning (LLaMA-3.1)"},
+            {"stage": "Act", "status": "done", "note": "OCR: Extracted 3 pages & UTM readings; RAG: 5 clauses matched"},
+            {"stage": "Observe", "status": "done", "note": "Corrosion rate verified within allowable limits (16.8mm > 14.2mm)"},
+            {"stage": "Deliver", "status": "done", "note": "Generated approval_note_CDU-2891.docx with audit appendix"},
         ]
-        deliverables = ["approval_note.docx"]
-    elif any(k in msg_lower for k in ["code", "python", "script", "calculate", "debug"]):
+        deliverables = ["Approval_Note_CDU_2891.docx", "Inspection_Assessment.xlsx"]
+        model_used = "Llama-3.1-70B + Vision Multimodal"
+
+    elif any(k in msg_lower for k in ["code", "python", "script", "calculate", "mass-balance", "mass balance"]):
         response = MOCK_RESPONSES["code"]
         steps = [
-            {"stage": "Plan", "status": "done", "note": "Write code → sandbox execute → verify"},
-            {"stage": "Route", "status": "done", "note": "Code Specialist model (qwen2.5-coder:7b) assigned"},
-            {"stage": "Act", "status": "done", "note": "Code generated. Sandbox execution: exit code 0."},
-            {"stage": "Observe", "status": "done", "note": "Output verified against expected values."},
-            {"stage": "Deliver", "status": "done", "note": "mass_balance.py + execution_log.txt generated."},
+            {"stage": "Plan", "status": "done", "note": "Draft Python mass-balance script → Run in local Docker sandbox"},
+            {"stage": "Route", "status": "done", "note": "Code Specialist model (Qwen2.5-Coder:7B) assigned"},
+            {"stage": "Act", "status": "done", "note": "Script executed in air-gapped container: Exit Code 0, 34ms"},
+            {"stage": "Observe", "status": "done", "note": "Mass balance confirmed within 0.00% tolerance (450 T/h in/out)"},
+            {"stage": "Deliver", "status": "done", "note": "Generated mass_balance_cdu.py and execution log"},
         ]
-        deliverables = ["mass_balance.py", "execution_log.txt"]
+        deliverables = ["mass_balance_cdu.py", "execution_log.txt"]
+        model_used = "Qwen2.5-Coder:7B [On-Premise]"
+
+    elif any(k in msg_lower for k in ["presentation", "powerpoint", "slides", "board meeting", "summarize"]):
+        response = MOCK_RESPONSES["presentation"]
+        steps = [
+            {"stage": "Plan", "status": "done", "note": "Synthesize minutes into 5-slide executive presentation"},
+            {"stage": "Route", "status": "done", "note": "General Reasoning + Document Generator tools"},
+            {"stage": "Act", "status": "done", "note": "Extracted key financial (GRM $9.85/bbl), safety (0 LTIF) metrics"},
+            {"stage": "Observe", "status": "done", "note": "Slide content structured and validated against MRPL template"},
+            {"stage": "Deliver", "status": "done", "note": "Generated MRPL_Board_Meeting_Summary.pptx deck"},
+        ]
+        deliverables = ["MRPL_Board_Meeting_Summary.pptx"]
+        model_used = "Llama-3.1-70B-Instruct"
+
     else:
         response = MOCK_RESPONSES["default"]
         steps = [
-            {"stage": "Plan", "status": "done", "note": "Request analyzed"},
-            {"stage": "Route", "status": "done", "note": "General model assigned"},
-            {"stage": "Act", "status": "done", "note": "RAG search + model inference complete"},
-            {"stage": "Observe", "status": "done", "note": "Output validated"},
-            {"stage": "Deliver", "status": "done", "note": "Response compiled"},
+            {"stage": "Plan", "status": "done", "note": "Prompt analyzed and security boundaries verified"},
+            {"stage": "Route", "status": "done", "note": "Routed to on-premise General Reasoning model"},
+            {"stage": "Act", "status": "done", "note": "Queried local knowledge base and synthesized answer"},
+            {"stage": "Observe", "status": "done", "note": "Checked regulatory and safety policies"},
+            {"stage": "Deliver", "status": "done", "note": "Output verified and formatted for officer review"},
         ]
         deliverables = []
+        model_used = "Llama-3.1-8B-Instruct"
 
     return {
         "response": response,
         "steps": steps,
         "deliverables": deliverables,
         "egress_calls": 0,
-        "model_used": "llama3.1:8b-instruct",
-        "latency_ms": 1500,
+        "model_used": model_used,
+        "latency_ms": int(actual_latency * 1000),
         "task_id": req.task_id or f"task-{int(time.time())}",
     }
 

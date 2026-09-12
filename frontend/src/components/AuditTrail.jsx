@@ -2,14 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { auditAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const ACTION_COLORS = {
-  TASK_CREATED: '#3b82f6',
-  MODEL_CALL: '#8b5cf6',
-  TOOL_CALL: '#f59e0b',
-  TASK_COMPLETE: '#10b981',
-  TASK_FAILED: '#ef4444',
-};
-
 const ACTION_ICONS = {
   TASK_CREATED: '📋',
   MODEL_CALL: '🤖',
@@ -30,9 +22,10 @@ export default function AuditTrail({ taskId = null }) {
     setError(null);
     try {
       const data = await auditAPI.list(taskId);
-      setEntries(data);
+      setEntries(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Could not load audit trail: ' + (err?.message || 'Network error'));
+      setEntries([]);
     } finally {
       setLoading(false);
     }
@@ -40,8 +33,9 @@ export default function AuditTrail({ taskId = null }) {
 
   useEffect(() => { fetch(); }, [fetch]);
 
-  const filtered = filter === 'all' ? entries : entries.filter(e => e.action === filter);
-  const uniqueActions = [...new Set(entries.map(e => e.action))];
+  const safeEntries = Array.isArray(entries) ? entries : [];
+  const filtered = filter === 'all' ? safeEntries : safeEntries.filter(e => e.action === filter);
+  const uniqueActions = [...new Set(safeEntries.map(e => e.action))];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -60,35 +54,45 @@ export default function AuditTrail({ taskId = null }) {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
-          <span className="spinner" style={{ display: 'inline-block', marginRight: 8 }} />Loading audit trail…
+        <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <div className="quantum-loader" style={{ width: 32, height: 32 }}>
+            <div className="quantum-ring-outer" />
+            <div className="quantum-ring-inner" />
+            <div className="quantum-core" style={{ width: 10, height: 10 }} />
+          </div>
+          <div className="audit-loader-text">Verifying immutable hash-chain blocks…</div>
         </div>
       ) : error ? (
-        <div style={{ padding: '12px', background: '#fee2e2', borderRadius: 8, fontSize: 12, color: '#b91c1c' }}>⚠️ {error}</div>
+        <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 8, fontSize: 12, color: 'var(--danger)' }}>
+          ⚠️ {error}
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {filtered.map((entry, i) => {
-            const color = ACTION_COLORS[entry.action] || '#94a3b8';
+            const isFailed = entry.action === 'TASK_FAILED';
             const icon = ACTION_ICONS[entry.action] || '●';
             return (
-              <div key={i} className="fade-in" style={{
-                display: 'flex', gap: 10, padding: '9px 12px',
-                background: 'var(--surface)', border: '1px solid var(--border-light)',
-                borderRadius: 8, borderLeft: `3px solid ${color}`,
-                alignItems: 'flex-start',
-              }}>
-                <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>
+              <div key={i} className={`fade-in audit-entry ${isFailed ? 'audit-entry-failed' : ''}`}>
+                <span style={{ fontSize: 15, flexShrink: 0 }}>{icon}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 3 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color }}>{entry.action}</span>
-                    <span className="tag" style={{ fontSize: 10 }}>👤 {entry.actor}</span>
-                    {entry.task_id && <span className="tag" style={{ fontSize: 10 }}>🆔 {entry.task_id}</span>}
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 2 }}>
+                    <span className={`audit-action ${isFailed ? 'audit-action-failed' : ''}`}>
+                      {entry.action}
+                    </span>
+                    <span className="audit-actor">
+                      👤 {entry.actor}
+                    </span>
+                    {entry.task_id && (
+                      <span className="audit-task-id">
+                        🆔 {entry.task_id}
+                      </span>
+                    )}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-sec)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div className="audit-resource">
                     {entry.resource}
                   </div>
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0, fontFamily: 'monospace' }}>
+                <div className="audit-time">
                   {entry.time}
                 </div>
               </div>
@@ -98,11 +102,7 @@ export default function AuditTrail({ taskId = null }) {
       )}
 
       {/* Immutability notice */}
-      <div style={{
-        fontSize: 11, color: 'var(--text-muted)', textAlign: 'center',
-        padding: '8px', background: 'var(--surface-2)', borderRadius: 6,
-        border: '1px solid var(--border-light)',
-      }}>
+      <div className="audit-immutability-notice">
         🔒 Audit log is append-only (hash-chained). Entries cannot be modified after creation.
       </div>
     </div>

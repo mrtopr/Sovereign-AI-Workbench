@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   // Restore session from localStorage on page reload
   useEffect(() => {
@@ -20,9 +21,12 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     setError('');
+    // Authentic LDAP / Sovereign Auth Verification delay
+    await new Promise(r => setTimeout(r, 750));
     try {
       const data = await authAPI.login(username, password);
       setUser(data.user);
+      setIsInitializing(true);
       localStorage.setItem('mrpl_user', JSON.stringify(data.user));
       localStorage.setItem('mrpl_user_id', data.user.username);
       return true;
@@ -31,6 +35,7 @@ export function AuthProvider({ children }) {
       const found = DEMO_USERS.find(u => u.username === username && u.password === password);
       if (found) {
         setUser(found);
+        setIsInitializing(true);
         localStorage.setItem('mrpl_user', JSON.stringify(found));
         localStorage.setItem('mrpl_user_id', found.username);
         return true;
@@ -42,12 +47,17 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null);
+    setIsInitializing(false);
     localStorage.removeItem('mrpl_user');
     localStorage.removeItem('mrpl_user_id');
   };
 
+  const finishInitializing = () => {
+    setIsInitializing(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, error, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, error, loading, isInitializing, finishInitializing }}>
       {!loading && children}
     </AuthContext.Provider>
   );

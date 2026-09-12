@@ -1,172 +1,95 @@
-import { useState } from 'react';
-import GovtHeader from '../components/GovtHeader';
-import ChatPane from '../components/ChatPane';
-import TaskDashboard from '../components/TaskDashboard';
-import SovereigntyPanel from '../components/SovereigntyPanel';
-import AuditTrail from '../components/AuditTrail';
-import { useAuth } from '../context/AuthContext';
+import { useState } from "react";
+import GovtHeader, { Sidebar } from "../components/GovtHeader";
+import ChatPane from "../components/ChatPane";
+import TaskDashboard from "../components/TaskDashboard";
+import SovereigntyPanel from "../components/SovereigntyPanel";
+import AuditTrail from "../components/AuditTrail";
+import { useAuth } from "../context/AuthContext";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [activeView, setActiveView] = useState("chat");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeView, setActiveView] = useState('dashboard');  // 'dashboard' | 'audit'
-
-  const handleTaskComplete = () => setRefreshKey(k => k + 1);
-
-  const navItems = [
-    { id: 'dashboard', icon: '💬', label: 'AI Chat & Dashboard' },
-    { id: 'audit', icon: '📜', label: 'Audit Trail', adminOnly: false },
-  ];
+  const [chatPrompt, setChatPrompt] = useState("");
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--off-white)' }}>
-      <GovtHeader />
+    <div className="app-shell">
+      {/* ── TOPBAR: Compact Govt Identity ── */}
+      <GovtHeader activeView={activeView} setActiveView={setActiveView} />
 
-      {/* Role/context banner */}
-      <div style={{
-        background: 'linear-gradient(90deg, #00214f, var(--navy))',
-        color: '#fff', padding: '7px 20px',
-        display: 'flex', alignItems: 'center', gap: 12, fontSize: 12,
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-      }}>
-        <div style={{
-          width: 26, height: 26, background: 'var(--saffron)',
-          borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 10, fontWeight: 700, flexShrink: 0,
-        }}>{user?.avatar}</div>
-        <span style={{ fontWeight: 600 }}>{user?.name}</span>
-        <span style={{ color: 'rgba(255,255,255,0.5)' }}>·</span>
-        <span style={{ color: 'rgba(255,255,255,0.7)' }}>{user?.role}</span>
-        <span style={{ color: 'rgba(255,255,255,0.5)' }}>·</span>
-        <span style={{ color: 'rgba(255,255,255,0.6)' }}>{user?.department}</span>
-        <span style={{ color: 'rgba(255,255,255,0.5)' }}>·</span>
-        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>{user?.employeeId}</span>
+      {/* ── MAIN BODY: Sidebar + Content ── */}
+      <div className="app-body">
+        <Sidebar activeView={activeView} setActiveView={setActiveView} user={user} />
 
-        {/* View toggle */}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-          {navItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              style={{
-                background: activeView === item.id ? 'rgba(255,255,255,0.15)' : 'transparent',
-                border: `1px solid ${activeView === item.id ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`,
-                color: activeView === item.id ? '#fff' : 'rgba(255,255,255,0.6)',
-                borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer',
-                fontWeight: activeView === item.id ? 600 : 400,
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
-        </div>
+        {/* ── CONTENT AREA ── */}
+        <div className="content-area">
+          {/* ── CHAT VIEW ── */}
+          {activeView === "chat" && (
+            <div className="chat-layout">
+              <div className="chat-main">
+                <ChatPane
+                  onTaskComplete={() => setRefreshKey(k => k + 1)}
+                  initialPrompt={chatPrompt}
+                  onPromptUsed={() => setChatPrompt("")}
+                />
+              </div>
 
-        <div style={{ display: 'flex', gap: 10, fontSize: 11, marginLeft: 6 }}>
-          <span style={{ color: '#86efac' }}>🔒 Encrypted</span>
-          <span style={{ color: '#86efac' }}>🛡️ Air-Gapped</span>
+              {/* Right task panel */}
+              <div className="chat-panel">
+                <div className="panel-head">
+                  <span>📋</span>
+                  <span>My Tasks / मेरे कार्य</span>
+                </div>
+                <div className="panel-body">
+                  <TaskDashboard refreshKey={refreshKey} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── TASKS FULL VIEW ── */}
+          {activeView === "tasks" && (
+            <div className="page-view">
+              <div className="page-heading">📋 All Tasks</div>
+              <div className="page-sub">Track, manage and monitor all AI-generated task executions across MRPL departments.</div>
+              <TaskDashboard refreshKey={refreshKey} showAll />
+            </div>
+          )}
+
+          {/* ── AUDIT TRAIL ── */}
+          {activeView === "audit" && (
+            <div className="page-view">
+              <div className="page-heading">📜 Immutable Audit Trail</div>
+              <div className="page-sub">
+                Every agent action, model call, and file generated is permanently hash-chained here. Append-only for MRPL compliance and regulatory audit.
+              </div>
+              <AuditTrail />
+            </div>
+          )}
+
+          {/* ── SOVEREIGNTY MONITOR ── */}
+          {activeView === "monitor" && (
+            <div className="page-view">
+              <div className="page-heading">🛡️ Sovereignty &amp; Egress Monitor</div>
+              <div className="page-sub">
+                Live monitoring of all network activity. The system must show <strong style={{ color: 'var(--success)' }}>zero</strong> external calls at all times. Any outbound traffic triggers a security alert.
+              </div>
+              <SovereigntyPanel refreshKey={refreshKey} />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Main content ── */}
-      {activeView === 'dashboard' ? (
-        /* 3-column dashboard */
-        <main style={{
-          flex: 1, display: 'grid',
-          gridTemplateColumns: '1fr 320px 300px',
-          height: 'calc(100vh - 116px)',
-          overflow: 'hidden',
-        }}>
-          {/* Left: Chat */}
-          <div style={{
-            borderRight: '1px solid var(--border-light)',
-            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            background: 'var(--surface)',
-          }}>
-            <div style={{
-              padding: '10px 16px', borderBottom: '1px solid var(--border-light)',
-              display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)',
-            }}>
-              <span style={{ fontSize: 16 }}>💬</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--navy)' }}>AI Assistant</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Agentic · Multimodal · On-Premise</div>
-              </div>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
-                <span className="status-dot live" />
-                <span style={{ fontSize: 11, color: 'var(--india-green)', fontWeight: 600 }}>Model Pool Active</span>
-              </div>
-            </div>
-            <div style={{ flex: 1, overflow: 'hidden' }}>
-              <ChatPane onTaskComplete={handleTaskComplete} />
-            </div>
-          </div>
-
-          {/* Middle: Task Dashboard */}
-          <div style={{
-            borderRight: '1px solid var(--border-light)',
-            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            background: 'var(--off-white)',
-          }}>
-            <div style={{
-              padding: '10px 16px', borderBottom: '1px solid var(--border-light)',
-              display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)',
-            }}>
-              <span>📋</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--navy)' }}>Task Dashboard</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Plan → Route → Act → Observe → Deliver</div>
-              </div>
-            </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
-              <TaskDashboard refreshKey={refreshKey} />
-            </div>
-          </div>
-
-          {/* Right: Sovereignty Panel */}
-          <div style={{
-            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            background: 'var(--off-white)',
-          }}>
-            <div style={{
-              padding: '10px 16px', borderBottom: '1px solid var(--border-light)',
-              display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface-2)',
-            }}>
-              <span>🛡️</span>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--navy)' }}>Sovereignty Monitor</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Live egress · Models · Files</div>
-              </div>
-            </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
-              <SovereigntyPanel refreshKey={refreshKey} />
-            </div>
-          </div>
-        </main>
-      ) : (
-        /* Audit Trail full-width view */
-        <main style={{ flex: 1, overflowY: 'auto', padding: 24, maxWidth: 900, width: '100%', margin: '0 auto' }}>
-          <div style={{ marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--navy)', marginBottom: 4 }}>
-              📜 Immutable Audit Trail
-            </h2>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              Every agent action, model call, tool invocation, and file generated is recorded here. Hash-chained and append-only.
-            </p>
-          </div>
-          <AuditTrail />
-        </main>
-      )}
-
-      {/* Footer */}
-      <div style={{
-        background: 'var(--navy-dark)', color: 'rgba(255,255,255,0.45)',
-        padding: '5px 20px', fontSize: 10,
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      }}>
-        <span>© 2026 Mangalore Refinery and Petrochemicals Limited · भारत सरकार · Ministry of Petroleum</span>
-        <span>SIH26117 · Team Metamorphosis · v1.0 Prototype</span>
-        <span>🔒 All data stays on-premise</span>
+      {/* ── PINNED BOTTOM STATUS BAR ── */}
+      <div className="statusbar">
+        <div className="statusbar-item ok">✔ Air-Gapped</div>
+        <div className="statusbar-item ok">✔ On-Premise Only</div>
+        <div className="statusbar-item ok">✔ Zero External Calls</div>
+        <div className="statusbar-item">🏛️ MRPL — Mangalore Refinery &amp; Petrochemicals Ltd.</div>
+        <div className="statusbar-right">
+          <span>SIH26117 · Team Metamorphosis</span>
+          <span style={{ color: 'var(--saffron)', fontWeight: 600 }}>🇮🇳 Digital India Initiative</span>
+        </div>
       </div>
     </div>
   );
