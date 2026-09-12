@@ -53,15 +53,15 @@ export default function GovtHeader({ activeView, setActiveView }) {
         </div>
 
         {/* Digital India Badge */}
-        <div className="topbar-badge">
+        <div className="topbar-badge saffron">
           <span style={{ fontSize: 13 }}>🇮🇳</span>
-          <span style={{ color: 'var(--text-sec)' }}>Digital India</span>
+          <span>Digital India</span>
         </div>
 
         {/* PM Modi Vision Badge */}
-        <div className="topbar-badge">
+        <div className="topbar-badge vision">
           <span>🏛️</span>
-          <span style={{ color: 'var(--text-sec)' }}>Vision: <strong style={{ color: 'var(--text-primary)' }}>PM Shri Narendra Modi</strong></span>
+          <span>Vision: <strong>PM Shri Narendra Modi</strong></span>
         </div>
 
         {/* Topbar Right Actions (Theme Switch + User Profile) */}
@@ -134,13 +134,22 @@ export function Sidebar({ activeView, setActiveView, user }) {
       <div className="sidebar-section" style={{ marginTop: 14 }}>
         <div className="sidebar-label">System</div>
         <div className="sidebar-system-box">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="sidebar-status-row">
             <div className="dot dot-live" />
-            <span style={{ color: 'var(--success)', fontWeight: 700 }}>Models: Active</span>
+            <span className="status-highlight-green">Models: Active</span>
           </div>
-          <div>📍 On-Premise GPU</div>
-          <div>🛡️ Air-Gapped Network</div>
-          <div>🔒 Zero External Egress</div>
+          <div className="sidebar-status-row">
+            <span className="status-icon-amber">📍</span>
+            <span>On-Premise GPU</span>
+          </div>
+          <div className="sidebar-status-row">
+            <span className="status-icon-emerald">🛡️</span>
+            <span>Air-Gapped Network</span>
+          </div>
+          <div className="sidebar-status-row">
+            <span className="status-icon-cyan">🔒</span>
+            <span>Zero External Egress</span>
+          </div>
           <div className="sidebar-version-tag">
             SIH26117 · v1.0 Production
           </div>

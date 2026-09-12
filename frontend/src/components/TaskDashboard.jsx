@@ -192,11 +192,11 @@ export default function TaskDashboard({ refreshKey }) {
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
         {[
-          { label: 'Total', value: tasks.length, cls: 'stat-num-total' },
-          { label: 'Done', value: completed, cls: 'stat-num-done' },
-          { label: 'Active', value: inProgress, cls: 'stat-num-active' },
+          { label: 'Total', value: tasks.length, cls: 'stat-num-total', cardCls: 'stat-card-total' },
+          { label: 'Done', value: completed, cls: 'stat-num-done', cardCls: 'stat-card-done' },
+          { label: 'Active', value: inProgress, cls: 'stat-num-active', cardCls: 'stat-card-active' },
         ].map((s, i) => (
-          <div key={i} className="card stat-card" style={{ padding: '8px 4px', textAlign: 'center' }}>
+          <div key={i} className={`card stat-card ${s.cardCls}`} style={{ padding: '8px 4px', textAlign: 'center' }}>
             <div className={`stat-number ${s.cls}`}>{s.value}</div>
             <div className="stat-label">{s.label}</div>
           </div>

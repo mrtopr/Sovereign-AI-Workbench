@@ -544,31 +544,16 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
   };
 
   const QUICK_PROMPTS = [
-    { icon: '📋', label: 'Pressure Vessel SOPs (OISD-117)', text: 'Find relevant SOP clauses for pressure vessel inspection procedures' },
-    { icon: '📄', label: 'Review Inspection Report', text: 'Review this inspection report and prepare an approval note citing relevant SOP clauses' },
-    { icon: '🐍', label: 'Python Mass Balance Script', text: 'Write and test a Python mass-balance calculation script for CDU unit' },
-    { icon: '📊', label: '5-Slide Boardroom Presentation', text: 'Summarize board meeting minutes into a 5-slide executive PowerPoint' },
+    { icon: '📋', label: 'Pressure Vessel SOPs (OISD-117)', text: 'Find relevant SOP clauses for pressure vessel inspection procedures', accent: 'chip-blue' },
+    { icon: '📄', label: 'Review Inspection Report', text: 'Review this inspection report and prepare an approval note citing relevant SOP clauses', accent: 'chip-cyan' },
+    { icon: '🐍', label: 'Python Mass Balance Script', text: 'Write and test a Python mass-balance calculation script for CDU unit', accent: 'chip-green' },
+    { icon: '📊', label: '5-Slide Boardroom Presentation', text: 'Summarize board meeting minutes into a 5-slide executive PowerPoint', accent: 'chip-saffron' },
   ];
 
   const isBusy = sendingState !== 'idle';
 
   return (
     <div className="chat-pane-wrapper">
-      {/* Quick Prompts Chip Bar */}
-      <div className="quick-prompts-bar">
-        {QUICK_PROMPTS.map((p, i) => (
-          <button
-            key={i}
-            className="prompt-chip"
-            onClick={() => setInput(p.text)}
-            title={p.text}
-          >
-            <span>{p.icon}</span>
-            <span>{p.label}</span>
-          </button>
-        ))}
-      </div>
-
       {/* Messages Scroll Container */}
       <div className="chat-messages-container" ref={chatContainerRef}>
         {messages.map((msg, i) => (
@@ -660,6 +645,21 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
 
       {/* Pinned Input Bar */}
       <div className="chat-input-bar">
+        {/* Quick Prompts Chip Bar directly above text input */}
+        <div className="quick-prompts-bar">
+          {QUICK_PROMPTS.map((p, i) => (
+            <button
+              key={i}
+              className={`prompt-chip ${p.accent}`}
+              onClick={() => setInput(p.text)}
+              title={p.text}
+            >
+              <span>{p.icon}</span>
+              <span>{p.label}</span>
+            </button>
+          ))}
+        </div>
+
         {uploadedFile && (
           <div style={{
             display: 'flex',

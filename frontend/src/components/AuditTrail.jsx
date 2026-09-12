@@ -70,13 +70,14 @@ export default function AuditTrail({ taskId = null }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {filtered.map((entry, i) => {
             const isFailed = entry.action === 'TASK_FAILED';
+            const actionSlug = (entry.action || 'default').toLowerCase().replace(/_/g, '-');
             const icon = ACTION_ICONS[entry.action] || '●';
             return (
-              <div key={i} className={`fade-in audit-entry ${isFailed ? 'audit-entry-failed' : ''}`}>
-                <span style={{ fontSize: 15, flexShrink: 0 }}>{icon}</span>
+              <div key={i} className={`fade-in audit-entry audit-entry-${actionSlug} ${isFailed ? 'audit-entry-failed' : ''}`}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 2 }}>
-                    <span className={`audit-action ${isFailed ? 'audit-action-failed' : ''}`}>
+                    <span className={`audit-action audit-action-${actionSlug} ${isFailed ? 'audit-action-failed' : ''}`}>
                       {entry.action}
                     </span>
                     <span className="audit-actor">

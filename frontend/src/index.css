@@ -534,12 +534,38 @@ html, body, #root {
   box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2);
 }
 .sidebar-system-box {
-  padding: 6px 8px;
+  padding: 8px 10px;
   font-size: 11px;
   color: var(--text-sec);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--r-md);
+  margin-top: 4px;
+}
+.sidebar-status-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+}
+.status-highlight-green {
+  color: var(--success);
+  font-weight: 700;
+}
+.status-icon-amber {
+  color: #f59e0b;
+  font-size: 11px;
+}
+.status-icon-emerald {
+  color: #10b981;
+  font-size: 11px;
+}
+.status-icon-cyan {
+  color: #06b6d4;
+  font-size: 11px;
 }
 .sidebar-version-tag {
   margin-top: 4px;
@@ -669,17 +695,14 @@ html, body, #root {
   min-height: 0;
 }
 
-/* Quick prompt pills bar (Liquid Glass) */
+/* Quick prompt pills bar (Directly above text input) */
 .quick-prompts-bar {
-  padding: 9px 20px;
+  padding: 0 0 10px 0;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--border-glass);
-  background: rgba(15, 25, 48, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: transparent;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -709,6 +732,54 @@ html, body, #root {
   color: var(--text-primary);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+}
+
+.prompt-chip.chip-blue {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+.prompt-chip.chip-blue:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.prompt-chip.chip-cyan {
+  background: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.3);
+  color: #67e8f9;
+}
+.prompt-chip.chip-cyan:hover {
+  background: rgba(6, 182, 212, 0.22);
+  border-color: #06b6d4;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+}
+
+.prompt-chip.chip-green {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+.prompt-chip.chip-green:hover {
+  background: rgba(34, 197, 94, 0.22);
+  border-color: #22c55e;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+}
+
+.prompt-chip.chip-saffron {
+  background: rgba(255, 102, 0, 0.1);
+  border-color: rgba(255, 102, 0, 0.3);
+  color: #fdba74;
+}
+.prompt-chip.chip-saffron:hover {
+  background: rgba(255, 102, 0, 0.22);
+  border-color: #FF6600;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(255, 102, 0, 0.35);
 }
 
 /* Chat Input Bar (Frosted Acrylic) */
@@ -1729,6 +1800,18 @@ pre.code-content {
 .audit-entry-failed {
   border-left: 3px solid #ef4444;
 }
+.audit-entry-task-created  { border-left: 3.5px solid #3b82f6; }
+.audit-entry-model-call    { border-left: 3.5px solid #8b5cf6; }
+.audit-entry-tool-call     { border-left: 3.5px solid #f59e0b; }
+.audit-entry-task-complete { border-left: 3.5px solid #10b981; }
+.audit-entry-task-failed   { border-left: 3.5px solid #ef4444; }
+
+.audit-action-task-created  { color: #60a5fa; }
+.audit-action-model-call    { color: #c084fc; }
+.audit-action-tool-call     { color: #fbbf24; }
+.audit-action-task-complete { color: #4ade80; }
+.audit-action-task-failed   { color: #f87171; }
+
 .audit-action {
   font-size: 11.5px;
   font-weight: 700;
@@ -1790,6 +1873,19 @@ pre.code-content {
 /* ================================================================
    TASK PIPELINE & STATS STYLES
    ================================================================ */
+.stat-card-total {
+  border-top: 3.5px solid #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.08) !important;
+}
+.stat-card-done {
+  border-top: 3.5px solid #22c55e !important;
+  background: rgba(34, 197, 94, 0.08) !important;
+}
+.stat-card-active {
+  border-top: 3.5px solid #FF6600 !important;
+  background: rgba(255, 102, 0, 0.08) !important;
+}
+
 .pipeline-step {
   flex: 1;
   padding: 4px 3px;
@@ -2099,11 +2195,63 @@ pre.code-content {
 [data-theme="light"] .badge-grey    { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600; }
 [data-theme="light"] .tag           { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; font-weight: 600; }
 
+/* Prompt Chips in Light Mode */
+[data-theme="light"] .quick-prompts-bar {
+  background: transparent;
+  border: none;
+  padding: 0 0 10px 0;
+}
+[data-theme="light"] .prompt-chip.chip-blue {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+[data-theme="light"] .prompt-chip.chip-blue:hover {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+[data-theme="light"] .prompt-chip.chip-cyan {
+  background: #ecfeff;
+  border-color: #a5f3fc;
+  color: #0e7490;
+}
+[data-theme="light"] .prompt-chip.chip-cyan:hover {
+  background: #cffafe;
+  border-color: #06b6d4;
+  color: #0891b2;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+}
+[data-theme="light"] .prompt-chip.chip-green {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+[data-theme="light"] .prompt-chip.chip-green:hover {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #166534;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+[data-theme="light"] .prompt-chip.chip-saffron {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+}
+[data-theme="light"] .prompt-chip.chip-saffron:hover {
+  background: #ffedd5;
+  border-color: #ea580c;
+  color: #9a3412;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
+}
+
 /* Chat Bubbles in Light Mode */
 [data-theme="light"] .chat-bubble-assistant {
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+  border-top: 3px solid #2563eb;
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.06);
   color: #0f172a;
 }
 [data-theme="light"] .chat-bubble-user {
@@ -2115,8 +2263,10 @@ pre.code-content {
 
 /* Markdown in Light Mode */
 [data-theme="light"] .chat-bubble-assistant .md-h3 {
-  color: #1e3a8a;
+  color: #1e40af;
   font-weight: 800;
+  border-bottom: 2px solid #dbeafe;
+  padding-bottom: 4px;
 }
 [data-theme="light"] .chat-bubble-assistant .md-h4 {
   color: #0369a1;
@@ -2209,10 +2359,10 @@ pre.code-content {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 [data-theme="light"] table.markdown-table th {
-  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
-  color: #0f172a;
+  background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
+  color: #ffffff;
   font-weight: 800;
-  border-bottom: 2px solid #94a3b8;
+  border-bottom: 2.5px solid #38bdf8;
 }
 [data-theme="light"] table.markdown-table td {
   border-bottom: 1px solid #e2e8f0;
@@ -2237,9 +2387,18 @@ pre.code-content {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
   border-left: 3.5px solid #2563eb;
 }
-[data-theme="light"] .audit-entry-failed {
-  border-left: 3.5px solid #dc2626;
-}
+[data-theme="light"] .audit-entry-task-created  { border-left: 4px solid #2563eb; background: #fafcff; }
+[data-theme="light"] .audit-entry-model-call    { border-left: 4px solid #7c3aed; background: #fdfaff; }
+[data-theme="light"] .audit-entry-tool-call     { border-left: 4px solid #d97706; background: #fffdfa; }
+[data-theme="light"] .audit-entry-task-complete { border-left: 4px solid #16a34a; background: #fafffb; }
+[data-theme="light"] .audit-entry-task-failed   { border-left: 4px solid #dc2626; background: #fffafa; }
+
+[data-theme="light"] .audit-action-task-created  { color: #1d4ed8; font-weight: 800; }
+[data-theme="light"] .audit-action-model-call    { color: #6d28d9; font-weight: 800; }
+[data-theme="light"] .audit-action-tool-call     { color: #b45309; font-weight: 800; }
+[data-theme="light"] .audit-action-task-complete { color: #15803d; font-weight: 800; }
+[data-theme="light"] .audit-action-task-failed   { color: #dc2626; font-weight: 800; }
+
 [data-theme="light"] .audit-action {
   color: #1d4ed8;
   font-weight: 800;
@@ -2280,6 +2439,21 @@ pre.code-content {
 }
 
 /* Task Pipeline & Stats in Light Mode */
+[data-theme="light"] .stat-card-total {
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  border-top: 3.5px solid #2563eb !important;
+}
+[data-theme="light"] .stat-card-done {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  border-top: 3.5px solid #16a34a !important;
+}
+[data-theme="light"] .stat-card-active {
+  background: #fff7ed !important;
+  border: 1px solid #fed7aa !important;
+  border-top: 3.5px solid #ea580c !important;
+}
 [data-theme="light"] .pipeline-step-done {
   background: #dbeafe;
   color: #1e40af;
