@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { egressAPI } from '../services/api';
 
 const NAV = [
@@ -38,10 +38,12 @@ export default function GovtHeader({ activeView, setActiveView }) {
 
       {/* ── COMPACT TOPBAR ── */}
       <div className="topbar">
-        <div className="topbar-emblem" title="सत्यमेव जयते">🏛️</div>
+        <div className="topbar-emblem" title="MRPL Sovereign AI">
+          <img src="/favicon.svg" alt="MRPL" style={{ width: 28, height: 28, display: 'block' }} />
+        </div>
         <div className="topbar-titles">
           <div className="topbar-name">MRPL — Sovereign AI Workbench</div>
-          <div className="topbar-sub">भारत सरकार · Ministry of Petroleum · A Miniratna Govt. of India Enterprise</div>
+          <div className="topbar-sub">Mangalore Refinery and Petrochemicals Limited · Autonomous Enterprise Platform</div>
         </div>
 
         <div className="topbar-sep" />
@@ -52,16 +54,10 @@ export default function GovtHeader({ activeView, setActiveView }) {
           <span>{eText}</span>
         </div>
 
-        {/* Digital India Badge */}
+        {/* Air-Gapped / Sovereign Badge */}
         <div className="topbar-badge saffron">
-          <span style={{ fontSize: 13 }}>🇮🇳</span>
-          <span>Digital India</span>
-        </div>
-
-        {/* PM Modi Vision Badge */}
-        <div className="topbar-badge vision">
-          <span>🏛️</span>
-          <span>Vision: <strong>PM Shri Narendra Modi</strong></span>
+          <span style={{ fontSize: 13 }}>🛡️</span>
+          <span>Air-Gapped Node</span>
         </div>
 
         {/* Topbar Right Actions (Theme Switch + User Profile) */}
@@ -81,9 +77,9 @@ export default function GovtHeader({ activeView, setActiveView }) {
             <div style={{ position: 'relative' }}>
               <button className="user-btn" onClick={() => setMenuOpen(o => !o)}>
                 <div className="user-av">{user.avatar}</div>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.2 }}>{user?.name?.split(' ')[0] || user?.name || 'User'}</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.2 }}>{user.role}</div>
+                <div style={{ textAlign: 'left', minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.2, whiteSpace: 'nowrap' }}>{user.name}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.2, whiteSpace: 'nowrap' }}>{user.role}</div>
                 </div>
                 <span style={{ fontSize: 8, color: 'var(--text-muted)', marginLeft: 2 }}>▼</span>
               </button>
@@ -100,7 +96,7 @@ export default function GovtHeader({ activeView, setActiveView }) {
                     </div>
                     <div className="user-dropdown-body">
                       <button className="logout-btn" onClick={() => { logout(); setMenuOpen(false); }}>
-                        🚪 Logout / साइन आउट
+                        🚪 Logout
                       </button>
                     </div>
                   </div>
@@ -115,55 +111,151 @@ export default function GovtHeader({ activeView, setActiveView }) {
 }
 
 export function Sidebar({ activeView, setActiveView, user }) {
+  const [width, setWidth] = useState(() => {
+    const saved = localStorage.getItem('mrpl_sidebar_width');
+    return saved ? Math.max(72, Math.min(parseInt(saved, 10), 450)) : 220;
+  });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const startResizing = useCallback((mouseDownEvent) => {
+    mouseDownEvent.preventDefault();
+    setIsDragging(true);
+
+    const startX = mouseDownEvent.clientX;
+    const startWidth = width;
+
+    const onMouseMove = (mouseMoveEvent) => {
+      const newWidth = Math.min(Math.max(startWidth + (mouseMoveEvent.clientX - startX), 72), 450);
+      setWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      setIsDragging(false);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, [width]);
+
+  useEffect(() => {
+    localStorage.setItem('mrpl_sidebar_width', width);
+  }, [width]);
+
+  const isCollapsed = width < 130;
+
+  const toggleCollapse = () => {
+    if (isCollapsed) {
+      setWidth(220);
+    } else {
+      setWidth(72);
+    }
+  };
+
   return (
-    <div className="sidebar">
-      <div className="sidebar-section">
-        <div className="sidebar-label">Navigation</div>
+    <div
+      className={`sidebar ${isDragging ? 'resizing' : ''} ${isCollapsed ? 'sidebar-collapsed' : ''}`}
+      style={{
+        width: `${width}px`,
+        minWidth: `${width}px`,
+        maxWidth: `${width}px`,
+        position: 'relative',
+      }}
+    >
+      {/* Draggable Resizer Edge */}
+      <div
+        className={`sidebar-resizer ${isDragging ? 'active' : ''}`}
+        onMouseDown={startResizing}
+        title="Drag with cursor to resize sidebar (double-click to toggle)"
+        onDoubleClick={toggleCollapse}
+      />
+
+      {/* Collapse / Expand Toggle Button */}
+      <div style={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-end', padding: '6px 8px 0' }}>
+        <button
+          className="btn btn-ghost btn-xs"
+          onClick={toggleCollapse}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          style={{
+            padding: '3px 6px',
+            fontSize: '11px',
+            color: 'var(--text-muted)',
+            borderRadius: '4px',
+          }}
+        >
+          {isCollapsed ? '▶' : '◀'}
+        </button>
+      </div>
+
+      <div className="sidebar-section" style={{ paddingTop: 4 }}>
+        {!isCollapsed && <div className="sidebar-label">Navigation</div>}
         {NAV.map(item => (
           <button
             key={item.id}
             className={`nav-btn${activeView === item.id ? ' active' : ''}`}
             onClick={() => setActiveView(item.id)}
+            title={item.label}
+            style={isCollapsed ? { justifyContent: 'center', padding: '10px 0' } : {}}
           >
-            <span className="nav-icon">{item.icon}</span>
-            <span>{item.label}</span>
+            <span className="nav-icon" style={{ fontSize: isCollapsed ? 18 : 15 }}>{item.icon}</span>
+            {!isCollapsed && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>}
           </button>
         ))}
       </div>
 
-      <div className="sidebar-section" style={{ marginTop: 14 }}>
-        <div className="sidebar-label">System</div>
-        <div className="sidebar-system-box">
-          <div className="sidebar-status-row">
-            <div className="dot dot-live" />
-            <span className="status-highlight-green">Models: Active</span>
-          </div>
-          <div className="sidebar-status-row">
-            <span className="status-icon-amber">📍</span>
-            <span>On-Premise GPU</span>
-          </div>
-          <div className="sidebar-status-row">
-            <span className="status-icon-emerald">🛡️</span>
-            <span>Air-Gapped Network</span>
-          </div>
-          <div className="sidebar-status-row">
-            <span className="status-icon-cyan">🔒</span>
-            <span>Zero External Egress</span>
-          </div>
-          <div className="sidebar-version-tag">
-            SIH26117 · v1.0 Production
+      {!isCollapsed ? (
+        <div className="sidebar-section" style={{ marginTop: 14 }}>
+          <div className="sidebar-label">System</div>
+          <div className="sidebar-system-box">
+            <div className="sidebar-status-row">
+              <div className="dot dot-live" />
+              <span className="status-highlight-green">Models: Active</span>
+            </div>
+            <div className="sidebar-status-row">
+              <span className="status-icon-amber">📍</span>
+              <span>On-Premise GPU</span>
+            </div>
+            <div className="sidebar-status-row">
+              <span className="status-icon-emerald">🛡️</span>
+              <span>Air-Gapped Network</span>
+            </div>
+            <div className="sidebar-status-row">
+              <span className="status-icon-cyan">🔒</span>
+              <span>Zero External Egress</span>
+            </div>
+            <div className="sidebar-version-tag">
+              SIH26117 · v1.0 Production
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ textAlign: 'center', marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+          <span title="Models Active" style={{ fontSize: 13 }}>🟢</span>
+          <span title="On-Premise GPU" style={{ fontSize: 13 }}>📍</span>
+          <span title="Air-Gapped Network" style={{ fontSize: 13 }}>🛡️</span>
+          <span title="Zero External Egress" style={{ fontSize: 13 }}>🔒</span>
+        </div>
+      )}
 
-      <div className="sidebar-user">
+      <div className="sidebar-user" style={{ marginTop: 'auto' }}>
         {user && (
-          <div className="sidebar-user-card">
+          <div
+            className="sidebar-user-card"
+            title={`${user.name} (${user.department})`}
+            style={isCollapsed ? { justifyContent: 'center', padding: '8px 4px' } : {}}
+          >
             <div className="sidebar-user-av">{user.avatar}</div>
-            <div style={{ minWidth: 0 }}>
-              <div className="sidebar-user-name">{user.name}</div>
-              <div className="sidebar-user-role">{user.department}</div>
-            </div>
+            {!isCollapsed && (
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                <div className="sidebar-user-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                <div className="sidebar-user-role" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.department}</div>
+              </div>
+            )}
           </div>
         )}
       </div>

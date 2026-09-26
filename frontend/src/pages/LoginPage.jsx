@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { DEMO_USERS } from "../data/mockData";
 
 export default function LoginPage() {
   const { login, error } = useAuth();
@@ -18,13 +17,6 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-  const AVATAR_COLORS = {
-    'RS': 'linear-gradient(135deg, #0ea5e9, #0284c7)',
-    'DN': 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-    'MK': 'linear-gradient(135deg, #f97316, #c2410c)',
-    'AP': 'linear-gradient(135deg, #6366f1, #4338ca)',
-  };
-
   return (
     <div className="login-shell">
       {/* ── SOLID TRICOLOR STRIPE AT VERY TOP ── */}
@@ -37,8 +29,8 @@ export default function LoginPage() {
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
             MRPL — Sovereign AI Workbench
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: "'Noto Sans Devanagari', 'Inter', sans-serif" }}>
-            भारत सरकार · Government of India · Ministry of Petroleum &amp; Natural Gas
+          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+            Mangalore Refinery and Petrochemicals Limited · Sovereign AI Platform
           </div>
         </div>
 
@@ -54,13 +46,9 @@ export default function LoginPage() {
           </button>
 
           <span className="topbar-badge saffron">
-            <span>🇮🇳</span>
-            <span>Digital India</span>
+            <span>🛡️</span>
+            <span>Air-Gapped Node</span>
           </span>
-          <div className="topbar-badge vision">
-            <span>🏛️</span>
-            <span>Vision: <strong style={{ color: 'var(--text-primary)' }}>PM Shri Narendra Modi</strong></span>
-          </div>
         </div>
       </div>
 
@@ -78,10 +66,10 @@ export default function LoginPage() {
                 Sovereign AI Workbench
               </div>
               <div className="login-left-sub" style={{ marginTop: 6 }}>
-                India's first 100% on-premise, air-gapped, multimodal agentic AI for PSU enterprises
+                100% on-premise, air-gapped, multimodal agentic AI for enterprise operations
               </div>
-              <div className="login-left-sub login-left-sub-hindi" style={{ marginTop: 3, fontFamily: "'Noto Sans Devanagari', sans-serif" }}>
-                भारत का पहला संप्रभु AI कार्यक्षेत्र
+              <div className="login-left-sub" style={{ marginTop: 3, color: 'var(--accent-light)' }}>
+                MRPL Sovereign AI Workbench
               </div>
             </div>
 
@@ -111,11 +99,11 @@ export default function LoginPage() {
           {/* Right Form Panel */}
           <div className="login-right">
             <div className="login-form-title">Employee Login</div>
-            <div className="login-form-sub">कर्मचारी लॉगिन — MRPL Secure Portal</div>
+            <div className="login-form-sub">MRPL Secure Portal</div>
 
             <form onSubmit={handleSubmit}>
               <div className="input-group">
-                <label className="field-label">Email ID / ईमेल पता</label>
+                <label className="field-label">Email ID</label>
                 <input
                   className="input"
                   type="email"
@@ -128,7 +116,7 @@ export default function LoginPage() {
               </div>
 
               <div className="input-group">
-                <label className="field-label">Password / पासवर्ड</label>
+                <label className="field-label">Password</label>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                   <input
                     className="input"
@@ -169,7 +157,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading} style={{ height: 44 }}>
+              <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading} style={{ height: 44, marginTop: 8 }}>
                 {loading ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="spinner" style={{ width: 14, height: 14 }} />
@@ -181,36 +169,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="divider" style={{ margin: '16px 0' }} />
-
-            <div>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8 }}>
-                Demo Access (Hackathon Evaluators)
-              </div>
-              <div className="demo-grid">
-                {DEMO_USERS.map(u => (
-                  <button
-                    key={u.id}
-                    className="demo-tile"
-                    onClick={() => { setUsername(u.username); setPassword(u.password); }}
-                    type="button"
-                  >
-                    <div
-                      className="demo-av"
-                      style={{ background: AVATAR_COLORS[u.avatar] || 'var(--navy)' }}
-                    >
-                      {u.avatar}
-                    </div>
-                    <div style={{ textAlign: 'left', minWidth: 0 }}>
-                      <div className="demo-name">{u.name?.split(' ')[0] || u.name}</div>
-                      <div className="demo-role">{u.role}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="login-security-notice">
+            <div className="login-security-notice" style={{ marginTop: 24 }}>
               <span>🔒</span>
               <span>100% On-Premise GPU execution. Zero external data transmission.</span>
             </div>
@@ -224,8 +183,8 @@ export default function LoginPage() {
         <div className="statusbar-item ok">✔ Air-Gapped</div>
         <div className="statusbar-item ok">✔ On-Premise GPU</div>
         <div className="statusbar-right">
-          <span>© 2026 MRPL · भारत सरकार · Ministry of Petroleum</span>
-          <span style={{ color: 'var(--saffron)', fontWeight: 600 }}>🇮🇳 Digital India · AI for All</span>
+          <span>© 2026 MRPL · Sovereign AI Platform · Enterprise Edition</span>
+          <span style={{ color: 'var(--accent-light)', fontWeight: 600 }}>🔒 100% On-Premise GPU Execution</span>
         </div>
       </div>
     </div>

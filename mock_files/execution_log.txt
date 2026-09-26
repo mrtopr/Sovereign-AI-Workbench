@@ -1,0 +1,20 @@
+================================================================================
+MRPL SOVEREIGN AI WORKBENCH — CONTAINER EXECUTION TELEMETRY LOG
+Target: CDU-II Hydrocarbon Mass Balance Reconciler
+Execution Node: sovereign-node-gpu01 (NVIDIA H100 80GB On-Premise)
+Network Isolation: STRICT AIR-GAP (iptables: DROP all out-bound except 192.168.10.0/24)
+================================================================================
+
+[00.001s] [INIT] Container sandbox created: mrpl-sandbox-pve-runner:v2.4
+[00.012s] [AUTH] Verified officer token for user: dev@mrpl.co.in (Role: Engineer)
+[00.024s] [INGEST] Loaded crude assay dataset: Arab Heavy Blend (Feedrate: 625 T/h)
+[00.056s] [MODEL] Dispatched to Qwen2.5-Coder:7B-Instruct (Local VRAM: 4.8 GB)
+[00.108s] [COMPUTE] Solving non-linear mass and thermodynamic enthalpy balances...
+[00.142s] [BALANCE] Feed: 15,000 MT/day | Sum of Cuts: 14,955 MT/day | Loss: 45 MT/day
+[00.158s] [VERIFY] Relative imbalance delta: 0.300% (Strict OISD convergence achieved)
+[00.189s] [OISD] Compliance rule engine checked against OISD-118 & API 510
+[00.210s] [AUDIT] SHA-256 block committed: a78d34e901f4c6e992b4512d7c089aef4123568901234
+[00.225s] [CLEANUP] Sandbox memory wiped. Ephemeral container destroyed.
+[00.231s] [STATUS] EXIT CODE: 0 (SUCCESS)
+
+Zero external DNS lookups. Zero egress packets transmitted.

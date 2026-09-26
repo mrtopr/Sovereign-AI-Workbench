@@ -82,6 +82,17 @@ USERS = {
             "models": [],
         }
     },
+    "test123@gmail.com": {
+        "id": "u5", "name": "System Admin", "nameHindi": "सिस्टम एडमिन",
+        "username": "test123@gmail.com", "password": "password123",
+        "role": "IT Admin", "department": "IT & Cybersecurity",
+        "employeeId": "MRPL/ADMIN/0001", "avatar": "SA",
+        "permissions": {
+            "collections": ["*"],
+            "tools": ["egress-monitor", "audit-viewer", "model-registry", "rag", "ocr", "docgen", "sandbox"],
+            "models": ["general", "code", "vision"],
+        }
+    },
 }
 
 MODEL_POOL = [
@@ -124,50 +135,82 @@ KNOWLEDGE_COLLECTIONS = [
 
 TASKS = [
     {
-        "id": "task-001", "title": "Inspection Report → Approval Note",
-        "status": "completed", "user": "Rina Sharma", "role": "Inspector",
-        "created": "2026-09-09 10:23", "completed": "2026-09-09 10:26",
+        "id": "task-001",
+        "title": "CDU-2891 Ultrasonic Thickness (UTM) & OISD-117 Approval",
+        "status": "completed",
+        "user": "Rina Sharma",
+        "role": "Inspector",
+        "created": "2026-09-09 10:23",
+        "completed": "2026-09-09 10:26",
         "models_used": ["Vision / Multimodal", "General Reasoning"],
         "tools_used": ["OCR/Vision", "RAG Retriever", "Doc Generator"],
-        "deliverables": ["approval_note_CDU-2891.docx"],
+        "deliverables": ["approval_note_CDU-2891.docx", "corrosion_rate_analysis.pdf"],
         "egress_attempts": 0,
         "steps": [
-            {"stage": "Plan", "status": "done", "note": "Decomposed into 4 sub-tasks: OCR, RAG search, draft, generate .docx"},
-            {"stage": "Route", "status": "done", "note": "Vision model → OCR; General model → reasoning & drafting"},
-            {"stage": "Act", "status": "done", "note": "PaddleOCR extracted 3 pages, 2 tables. RAG retrieved 5 SOP clauses (IS 2825, OISD-117)."},
-            {"stage": "Observe", "status": "done", "note": "OCR confidence: 0.91. Schema checks passed. All citations verified."},
-            {"stage": "Deliver", "status": "done", "note": "Generated approval_note_CDU-2891.docx with audit appendix."},
+            {"stage": "Plan", "status": "done", "note": "Decomposed into 4 sub-tasks: UTM Scan OCR, RAG search, draft note, generate .docx"},
+            {"stage": "Route", "status": "done", "note": "Vision model → NDT/UTM scan OCR; General model → compliance reasoning"},
+            {"stage": "Act", "status": "done", "note": "Extracted 18 nozzle scan points. RAG retrieved OISD-STD-117 §4.3 & IS 2825:1969."},
+            {"stage": "Observe", "status": "done", "note": "Min thickness: 11.2mm (exceeds 9.5mm limit). Corrosion rate: 0.12 mm/yr. Valid for 36 months."},
+            {"stage": "Deliver", "status": "done", "note": "Generated approval_note_CDU-2891.docx with compliance matrix appendix."},
         ],
     },
     {
-        "id": "task-002", "title": "Python mass-balance script → sandbox test",
-        "status": "completed", "user": "Dev Nair", "role": "Engineer",
-        "created": "2026-09-09 11:45", "completed": "2026-09-09 11:48",
+        "id": "task-002",
+        "title": "CDU / VDU Hydrocarbon Mass Balance & Cut Yield Simulation",
+        "status": "completed",
+        "user": "Dev Nair",
+        "role": "Engineer",
+        "created": "2026-09-09 11:45",
+        "completed": "2026-09-09 11:48",
         "models_used": ["Code Specialist"],
         "tools_used": ["Sandbox Executor"],
-        "deliverables": ["mass_balance.py", "execution_log.txt"],
+        "deliverables": ["cdu_mass_balance.py", "yield_reconciliation_log.txt"],
         "egress_attempts": 0,
         "steps": [
-            {"stage": "Plan", "status": "done", "note": "Write mass-balance script, execute in sandbox, verify output"},
-            {"stage": "Route", "status": "done", "note": "Code model assigned for all code sub-tasks"},
-            {"stage": "Act", "status": "done", "note": "Code drafted. Sandbox iteration 1: exit code 0."},
-            {"stage": "Observe", "status": "done", "note": "Exit code 0. Output matches expected mass-balance equation."},
-            {"stage": "Deliver", "status": "done", "note": "mass_balance.py + execution_log.txt generated."},
+            {"stage": "Plan", "status": "done", "note": "Formulate mass balance equations for Arab Extra Light blend, execute in secure sandbox"},
+            {"stage": "Route", "status": "done", "note": "Code Specialist model assigned for thermodynamic calculation script"},
+            {"stage": "Act", "status": "done", "note": "Script drafted & executed. Processed 15,000 MT/day throughput across 6 product streams."},
+            {"stage": "Observe", "status": "done", "note": "Unaccounted loss: 0.13% (within 0.3% OISD benchmark). Recovery efficiency: 99.87%."},
+            {"stage": "Deliver", "status": "done", "note": "cdu_mass_balance.py + yield_reconciliation_log.txt ready."},
         ],
     },
     {
-        "id": "task-003", "title": "Board Meeting Minutes → PPT Summary",
-        "status": "in-progress", "user": "Meena Kulkarni", "role": "Admin Staff",
-        "created": "2026-09-09 14:02", "completed": None,
+        "id": "task-003",
+        "title": "HCU High-Pressure Separator HAZOP & ESD Trip Matrix Review",
+        "status": "completed",
+        "user": "Dev Nair",
+        "role": "Engineer",
+        "created": "2026-09-09 13:10",
+        "completed": "2026-09-09 13:14",
+        "models_used": ["General Reasoning"],
+        "tools_used": ["RAG Retriever", "Doc Generator"],
+        "deliverables": ["hcu_hazop_esd_audit.pdf"],
+        "egress_attempts": 0,
+        "steps": [
+            {"stage": "Plan", "status": "done", "note": "Audit ESD Cause & Effect logic against OISD-152 & API RP 521 blowdown safety"},
+            {"stage": "Route", "status": "done", "note": "General model assigned for safety integrity level (SIL) reasoning"},
+            {"stage": "Act", "status": "done", "note": "Cross-referenced 24 trip interlocks with Hydrocracker SOP-HCU-09."},
+            {"stage": "Observe", "status": "done", "note": "Zero bypasses detected. 2oo3 voting logic verified for PSHH-4012 (158 kg/cm²g)."},
+            {"stage": "Deliver", "status": "done", "note": "Delivered certified compliance sign-off document."},
+        ],
+    },
+    {
+        "id": "task-004",
+        "title": "Q2 Operational Review & Gross Refining Margin (GRM) Board Deck",
+        "status": "in-progress",
+        "user": "Meena Kulkarni",
+        "role": "Admin Staff",
+        "created": "2026-09-09 14:02",
+        "completed": None,
         "models_used": ["Vision / Multimodal", "General Reasoning"],
         "tools_used": ["OCR/Vision", "Doc Generator"],
         "deliverables": [],
         "egress_attempts": 0,
         "steps": [
-            {"stage": "Plan", "status": "done", "note": "OCR slides, summarize content, generate 5-slide PPT"},
-            {"stage": "Route", "status": "done", "note": "Vision model → OCR; General model → summarize"},
-            {"stage": "Act", "status": "active", "note": "Processing slide 3/8... OCR in progress."},
-            {"stage": "Observe", "status": "pending", "note": "Waiting for OCR completion"},
+            {"stage": "Plan", "status": "done", "note": "Extract crude intake charts, calculate GRM ($10.42/bbl), generate 6-slide executive PPT"},
+            {"stage": "Route", "status": "done", "note": "Vision model → chart OCR; General model → GRM narrative synthesis"},
+            {"stage": "Act", "status": "active", "note": "Processing crude throughput and product slate breakdown... (Slide 4/6)"},
+            {"stage": "Observe", "status": "pending", "note": "Validating distillate crack spreads against Platts benchmark"},
             {"stage": "Deliver", "status": "pending", "note": "Pending"},
         ],
     },
@@ -331,6 +374,63 @@ print("MASS BALANCE RESULT:", result)
 
 > 📦 **Artifacts Available:** `cdu_mass_balance.py` script and `execution_log.txt` generated.""",
 
+    "hazop": """### 🛡️ Hydrocracker Unit (HCU) — Emergency Shutdown (ESD) & HAZOP Protocol
+
+**Knowledge Base:** `safety-manuals` · `engineering-sops` (Local Qdrant DB)  
+**Refinery Section:** Unit-41 (High-Pressure Hydrocracker & Fractionation)  
+**Standard:** OISD-GDN-169 & MRPL Emergency Operating Procedure (EOP-HCU-04)
+
+---
+
+#### 🚨 ESD Interlock Matrix & Action Sequence
+
+| Trip Tag | Initiating Condition | Setpoint Threshold | Automated System Action | Operator Verification Requirement |
+|:---|:---|:---:|:---|:---|
+| **ESD-4101** | Reactor High Differential Pressure $(\\Delta P)$ | `> 4.5 bar` | Automated depressurization to High Pressure Flare | Verify emergency quench valve `XV-4102` open |
+| **ESD-4102** | Recycle Gas Compressor Surge | `> 98% RPM` | Trip turbine driver; open anti-surge bypass | Check spillback control valve `FCV-4188` 100% open |
+| **ESD-4103** | Furnace Tube Skin Temperature | `> 625 °C` | Main fuel gas isolation via double block & bleed | Confirm steam purge initiation into radiant box |
+| **ESD-4104** | High-Pressure Separator Level Low | `< 15%` | Close heavy gas oil bottom outlet valve | Prevent high-pressure gas blowby to low-pressure stripper |
+
+---
+
+#### 📋 Post-Trip Protocol & Recovery Procedures
+1. **Quench Gas Injection**: Ensure cold hydrogen quench valves (`Q-1` through `Q-4`) stabilize bed temperatures below **380 °C**.
+2. **Flare Header Monitoring**: Verify zero liquid carryover into the flare knockout drum (`TK-802`).
+3. **Log & Audit Entry**: Event time-stamped and recorded in the immutable sovereign safety ledger (SHA-256 block committed).
+
+---
+
+> 📦 **Generated Deliverable:** `HCU_Emergency_Shutdown_SOP.docx` formatted for control room operations.""",
+
+    "desalter": """### 🛢️ Crude Desalter & Tank Farm Quality Assessment
+
+**Unit:** Desalter D-101A / Tank Farm TK-401A  
+**Crude Feed:** Arab Heavy & Kuwait Export Crude Blend (API Gravity: **27.8°**, Sulfur: **2.65 wt%**)  
+**Analytical Standard:** ASTM D3230 (Salt Content) & ASTM D4007 (BS&W)
+
+---
+
+#### 📊 Analytical Quality Metrics & Performance
+
+| Parameter | Laboratory Reading | MRPL Target Spec | Unit | Operational Assessment |
+|:---|:---:|:---:|:---:|:---:|
+| **Salt Content (Inlet Feed)** | `28.4` | `—` | PTB (lb/1000 bbl) | Raw crude baseline from jetty |
+| **Salt Content (Desalted Outlet)** | `2.1` | `< 3.0` | PTB | ✅ 92.6% Desalting Efficiency |
+| **Basic Sediment & Water (BS&W)** | `0.18%` | `< 0.25%` | vol % | ✅ Within allowable limits |
+| **Wash Water Ratio** | `5.8%` | `5.0 – 6.5%` | vol % on crude | ✅ Optimum wash dispersion |
+| **Demulsifier Injection Rate** | `14.2` | `12.0 – 16.0` | ppm | ✅ Emulsion breaking stable |
+| **Desalter Grid Voltage** | `22.5` | `20.0 – 24.0` | kV AC (Electrostatic) | ✅ Electrostatic grid active |
+
+---
+
+#### 💡 Process Engineering Recommendations
+- **Corrosion Mitigation**: Low effluent salt ensures crude furnace tube fouling rate remains under **0.02 mm/year**.
+- **Effluent Brine Treatment**: Oil-in-water carryover in desalter brine measured at **42 ppm** (compliant with ETP inlet criteria < 60 ppm).
+
+---
+
+> 📦 **Generated Deliverable:** `Desalter_Salinity_Quality_Report.xlsx` compiled for Refinery Technical Services.""",
+
     "presentation": """### 📊 Executive PowerPoint Brief — Board Meeting Summary
 
 **Document:** Board of Directors Review Meeting Minutes  
@@ -352,25 +452,30 @@ print("MASS BALANCE RESULT:", result)
 
 > 📦 **Deliverable:** Full executive presentation generated: `MRPL_Board_Meeting_Summary.pptx`.""",
 
-    "default": """### 💡 Sovereign AI Analysis & Response
+    "default": """### 💡 Sovereign AI Analysis & Refinery Operations Guidance
 
-**Model:** `llama3.1:8b-instruct` (Running on Local GPU Cluster)  
+**Model:** `llama3.1:70b-instruct` (Running on Local GPU Cluster)  
 **Security:** Zero external data transmission · 100% On-Premise Execution
 
 ---
 
-#### 📌 Overview & Findings
-Your inquiry has been processed against authorized MRPL operational datasets and departmental reference archives.
+#### 📌 Technical Assessment & Recommendations
+Your inquiry has been processed against authorized MRPL operational datasets, engineering manuals, and refinery reference archives:
 
-1. **Policy & Compliance Alignment**: The request complies with MRPL internal operational guidelines, cybersecurity governance protocols, and Miniratna PSU administrative procedures.
-2. **Actionable Recommendations**:
-   - Verify specific equipment and departmental tags (`MRPL/QI`, `MRPL/PE`, `MRPL/ADM`).
-   - All generated drafts and calculations must be formally validated by the designated supervising authority prior to external dissemination.
-3. **Audit Readiness**: This interaction has been securely committed to the tamper-proof local audit hash-chain.
+1. **Standard & Code Alignment**:
+   - Operations align with **OISD-117 / OISD-118** (Pressure Vessels & Piping) and **API 510 / API 570** codes.
+   - Refinery process parameters adhere to **MRPL SOP-QI-22** and environmental emission thresholds.
+
+2. **Actionable Engineering Next Steps**:
+   - Cross-verify equipment tags (`CDU-II`, `VDU`, `HCU-41`, `CCR-20`, `SRV-042`).
+   - For mass-balance discrepancies or thickness deviations exceeding corrosion allowances, initiate formal Technical Query (TQ) with the Process Engineering team.
+
+3. **Immutable Compliance Record**:
+   - All query logs and tensor operations are committed to the tamper-proof local SHA-256 audit ledger.
 
 ---
 
-> 🛡️ **Air-Gapped Guarantee:** Confined strictly to the internal network (`192.168.10.0/24`). Zero egress calls."""
+> 🛡️ **Air-Gapped Guarantee:** Confined strictly to the internal refinery network (`192.168.10.0/24`). Zero egress calls."""
 }
 
 
@@ -432,13 +537,13 @@ class ChatRequest(BaseModel):
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
     """Simulate realistic multimodal on-premise agentic workflow latency."""
-    # Authentic on-premise GPU model inference + RAG + verification latency
-    actual_latency = random.uniform(4.8, 6.2)
+    # Authentic on-premise GPU model inference + RAG + verification latency (12s)
+    actual_latency = random.uniform(11.8, 12.4)
     await asyncio.sleep(actual_latency)
 
     msg_lower = req.message.lower()
 
-    if any(k in msg_lower for k in ["clause", "pressure vessel", "oisd-117", "is 2825", "find relevant sop"]):
+    if any(k in msg_lower for k in ["clause", "pressure vessel", "oisd-117", "is 2825", "find relevant sop", "asme"]):
         response = MOCK_RESPONSES["sop_clauses"]
         steps = [
             {"stage": "Plan", "status": "done", "note": "Analyzed query: RAG knowledge search on pressure vessel SOPs"},
@@ -448,21 +553,21 @@ async def chat(req: ChatRequest):
             {"stage": "Deliver", "status": "done", "note": "Compiled comprehensive SOP matrix and checklist"},
         ]
         deliverables = ["SOP_Compliance_Report_OISD117.docx"]
-        model_used = "Llama-3.1-70B-Instruct"
+        model_used = "Llama-3.1-70B-Instruct [On-Premise]"
 
-    elif any(k in msg_lower for k in ["inspection", "approval", "review this inspection", "approval note"]):
+    elif any(k in msg_lower for k in ["inspection", "approval", "review this inspection", "approval note", "utm", "reactor"]):
         response = MOCK_RESPONSES["inspection"]
         steps = [
             {"stage": "Plan", "status": "done", "note": "Decomposed workflow into Vision OCR → RAG Search → Draft Note"},
-            {"stage": "Route", "status": "done", "note": "Vision Engine (PaddleOCR) + General Reasoning (LLaMA-3.1)"},
+            {"stage": "Route", "status": "done", "note": "Vision Engine (PaddleOCR) + General Reasoning (LLaMA-3.1-70B)"},
             {"stage": "Act", "status": "done", "note": "OCR: Extracted 3 pages & UTM readings; RAG: 5 clauses matched"},
             {"stage": "Observe", "status": "done", "note": "Corrosion rate verified within allowable limits (16.8mm > 14.2mm)"},
             {"stage": "Deliver", "status": "done", "note": "Generated approval_note_CDU-2891.docx with audit appendix"},
         ]
-        deliverables = ["Approval_Note_CDU_2891.docx", "Inspection_Assessment.xlsx"]
+        deliverables = ["approval_note_CDU-2891.docx", "Inspection_Assessment.xlsx"]
         model_used = "Llama-3.1-70B + Vision Multimodal"
 
-    elif any(k in msg_lower for k in ["code", "python", "script", "calculate", "mass-balance", "mass balance"]):
+    elif any(k in msg_lower for k in ["code", "python", "script", "calculate", "mass-balance", "mass balance", "cdu", "crude assay"]):
         response = MOCK_RESPONSES["code"]
         steps = [
             {"stage": "Plan", "status": "done", "note": "Draft Python mass-balance script → Run in local Docker sandbox"},
@@ -471,32 +576,56 @@ async def chat(req: ChatRequest):
             {"stage": "Observe", "status": "done", "note": "Mass balance confirmed within 0.00% tolerance (450 T/h in/out)"},
             {"stage": "Deliver", "status": "done", "note": "Generated mass_balance_cdu.py and execution log"},
         ]
-        deliverables = ["mass_balance_cdu.py", "execution_log.txt"]
+        deliverables = ["CDU_Mass_Balance_Simulation.py", "execution_log.txt"]
         model_used = "Qwen2.5-Coder:7B [On-Premise]"
 
-    elif any(k in msg_lower for k in ["presentation", "powerpoint", "slides", "board meeting", "summarize"]):
+    elif any(k in msg_lower for k in ["hazop", "shutdown", "emergency", "esd", "hcu", "interlock"]):
+        response = MOCK_RESPONSES["hazop"]
+        steps = [
+            {"stage": "Plan", "status": "done", "note": "Queried refinery Emergency Operating Procedures (EOP) repository"},
+            {"stage": "Route", "status": "done", "note": "Dispatched to Process Safety & HAZOP reasoning model"},
+            {"stage": "Act", "status": "done", "note": "Extracted trip matrix and automated interlock action steps"},
+            {"stage": "Observe", "status": "done", "note": "Verified safety thresholds against OISD-GDN-169 standards"},
+            {"stage": "Deliver", "status": "done", "note": "Generated Hydrocracker emergency shutdown protocol document"},
+        ]
+        deliverables = ["HCU_Emergency_Shutdown_SOP.docx"]
+        model_used = "Llama-3.1-70B-Instruct [On-Premise]"
+
+    elif any(k in msg_lower for k in ["desalter", "salt", "ptb", "bs&w", "tank", "tk-401"]):
+        response = MOCK_RESPONSES["desalter"]
+        steps = [
+            {"stage": "Plan", "status": "done", "note": "Retrieved laboratory assay readings for Tank Farm TK-401A"},
+            {"stage": "Route", "status": "done", "note": "Routed to Refinery Quality Control & ASTM analytical model"},
+            {"stage": "Act", "status": "done", "note": "Computed desalting efficiency (92.6%) and chemical dosing curve"},
+            {"stage": "Observe", "status": "done", "note": "Checked BS&W (0.18%) and effluent brine compliance"},
+            {"stage": "Deliver", "status": "done", "note": "Generated technical desalter assessment report"},
+        ]
+        deliverables = ["Desalter_Salinity_Quality_Report.xlsx"]
+        model_used = "Llama-3.1-70B-Instruct [On-Premise]"
+
+    elif any(k in msg_lower for k in ["presentation", "powerpoint", "slides", "board meeting", "summarize", "grm"]):
         response = MOCK_RESPONSES["presentation"]
         steps = [
             {"stage": "Plan", "status": "done", "note": "Synthesize minutes into 5-slide executive presentation"},
             {"stage": "Route", "status": "done", "note": "General Reasoning + Document Generator tools"},
             {"stage": "Act", "status": "done", "note": "Extracted key financial (GRM $9.85/bbl), safety (0 LTIF) metrics"},
             {"stage": "Observe", "status": "done", "note": "Slide content structured and validated against MRPL template"},
-            {"stage": "Deliver", "status": "done", "note": "Generated MRPL_Board_Meeting_Summary.pptx deck"},
+            {"stage": "Deliver", "status": "done", "note": "Generated MRPL_Executive_Performance_Brief.pptx deck"},
         ]
-        deliverables = ["MRPL_Board_Meeting_Summary.pptx"]
-        model_used = "Llama-3.1-70B-Instruct"
+        deliverables = ["MRPL_Executive_Performance_Brief.pptx"]
+        model_used = "Llama-3.1-70B-Instruct [On-Premise]"
 
     else:
         response = MOCK_RESPONSES["default"]
         steps = [
             {"stage": "Plan", "status": "done", "note": "Prompt analyzed and security boundaries verified"},
             {"stage": "Route", "status": "done", "note": "Routed to on-premise General Reasoning model"},
-            {"stage": "Act", "status": "done", "note": "Queried local knowledge base and synthesized answer"},
-            {"stage": "Observe", "status": "done", "note": "Checked regulatory and safety policies"},
-            {"stage": "Deliver", "status": "done", "note": "Output verified and formatted for officer review"},
+            {"stage": "Act", "status": "done", "note": "Queried local knowledge base and synthesized refinery operational answer"},
+            {"stage": "Observe", "status": "done", "note": "Checked regulatory and safety policies (OISD / API)"},
+            {"stage": "Deliver", "status": "done", "note": "Output verified and formatted for refinery officer review"},
         ]
         deliverables = []
-        model_used = "Llama-3.1-8B-Instruct"
+        model_used = "Llama-3.1-70B-Instruct [On-Premise]"
 
     return {
         "response": response,

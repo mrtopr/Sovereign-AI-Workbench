@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { tasksAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { generateGenuineDeliverable } from '../utils/deliverableGenerator';
 
 const STAGE_META = {
   Plan:    { icon: '🗺️', color: '#3b82f6' },
@@ -11,24 +12,39 @@ const STAGE_META = {
 };
 
 function StepPipeline({ steps }) {
-  const STAGES = ['Plan', 'Route', 'Act', 'Observe', 'Deliver'];
+  const STAGES = [
+    { name: 'Plan', icon: '🗺️' },
+    { name: 'Route', icon: '🔀' },
+    { name: 'Act', icon: '⚡' },
+    { name: 'Observe', icon: '🔍' },
+    { name: 'Deliver', icon: '📦' },
+  ];
   return (
-    <div style={{ display: 'flex', gap: 4, alignItems: 'center', width: '100%' }}>
-      {STAGES.map((stageName, i) => {
-        const step = steps.find(s => s.stage === stageName) || steps[i];
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', width: '100%', marginTop: 2 }}>
+      {STAGES.map((st) => {
+        const step = steps?.find(s => s.stage === st.name);
         const isDone = step?.status === 'done';
         const isActive = step?.status === 'active';
         const stepClass = isDone ? 'pipeline-step-done' : isActive ? 'pipeline-step-active' : 'pipeline-step-idle';
         return (
-          <div key={stageName} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
-            <div className={`pipeline-step ${stepClass}`} title={stageName}>
-              {stageName}
-              {isDone && ' ✓'}
-              {isActive && ' •'}
-            </div>
-            {i < STAGES.length - 1 && (
-              <div className={`pipeline-connector ${isDone ? 'done' : ''}`} />
-            )}
+          <div
+            key={st.name}
+            className={`pipeline-step ${stepClass}`}
+            title={`${st.name}: ${step?.note || (isDone ? 'Completed' : isActive ? 'Active' : 'Pending')}`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '3px 7px',
+              fontSize: '11px',
+              flex: 'initial',
+              borderRadius: 5,
+            }}
+          >
+            <span style={{ fontSize: 10 }}>{st.icon}</span>
+            <span>{st.name}</span>
+            {isDone && <span style={{ color: '#4ade80', fontWeight: 700, fontSize: 10 }}>✓</span>}
+            {isActive && <span style={{ color: '#38bdf8' }}>•</span>}
           </div>
         );
       })}
@@ -138,9 +154,65 @@ function TaskCard({ task, isExpanded, onToggle }) {
               <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase' }}>Deliverables</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {task.deliverables.map(d => {
-                  const ext = d.split('.').pop();
-                  const icons = { docx: '📄', xlsx: '📊', pptx: '📋', py: '🐍', txt: '📝' };
-                  return <button key={d} className="btn btn-ghost btn-sm">{icons[ext] || '📄'} {d}</button>;
+                  const ext = d.split('.').pop()?.toLowerCase();
+                  const icons = { docx: '📄', xlsx: '📊', csv: '📊', pptx: '📋', py: '🐍', pdf: '📑', txt: '📝' };
+                  const handleDownloadTaskDoc = async (filename) => {
+                    try {
+                      const candidates = [
+                        filename,
+                        filename.toLowerCase(),
+                        filename.replace(/_/g, '-'),
+                        filename.replace(/-/g, '_'),
+                        filename.toLowerCase().replace(/_/g, '-'),
+                        filename.toLowerCase().replace(/-/g, '_')
+                      ];
+
+                      for (const cand of candidates) {
+                        for (const folder of ['/MRPL_realistic_report_pack/', '/mock_files/']) {
+                          try {
+                            const resp = await fetch(`${folder}${encodeURIComponent(cand)}`);
+                            if (resp.ok) {
+                              const blob = await resp.blob();
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = filename;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                              return;
+                            }
+                          } catch (_) {}
+                        }
+                      }
+                    } catch (e) {
+                      console.warn('Static download fallback', e);
+                    }
+                    const { content, mime } = generateGenuineDeliverable(filename);
+                    const blob = new Blob([content], { type: mime || 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  };
+                  return (
+                    <button
+                      key={d}
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => handleDownloadTaskDoc(d)}
+                      title={`Download ${d}`}
+                      style={{ fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <span>{icons[ext] || '📄'}</span>
+                      <span>{d}</span>
+                      <span style={{ opacity: 0.6, fontSize: 10 }}>⬇</span>
+                    </button>
+                  );
                 })}
               </div>
             </div>

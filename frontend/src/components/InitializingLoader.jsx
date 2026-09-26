@@ -68,7 +68,7 @@ export default function InitializingLoader({ user, onComplete }) {
           MRPL Sovereign AI Workbench
         </div>
         <div className="init-loader-sub">
-          भारत सरकार · Ministry of Petroleum &amp; Natural Gas · A Miniratna Enterprise
+          Mangalore Refinery and Petrochemicals Limited · Enterprise AI Platform
         </div>
 
         {/* User context greeting */}
@@ -110,7 +110,7 @@ export default function InitializingLoader({ user, onComplete }) {
         <div className="statusbar-item ok">✔ On-Premise GPU</div>
         <div className="statusbar-right">
           <span>SIH26117 · Team Metamorphosis</span>
-          <span style={{ color: 'var(--saffron)', fontWeight: 600 }}>🇮🇳 Digital India</span>
+          <span style={{ color: 'var(--accent-light)', fontWeight: 600 }}>🛡️ Sovereign AI Platform</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import GovtHeader, { Sidebar } from "../components/GovtHeader";
 import ChatPane from "../components/ChatPane";
 import TaskDashboard from "../components/TaskDashboard";
@@ -11,6 +11,41 @@ export default function DashboardPage() {
   const [activeView, setActiveView] = useState("chat");
   const [refreshKey, setRefreshKey] = useState(0);
   const [chatPrompt, setChatPrompt] = useState("");
+  const [rightPanelWidth, setRightPanelWidth] = useState(() => {
+    const saved = localStorage.getItem('mrpl_right_panel_width');
+    return saved ? Math.max(240, Math.min(parseInt(saved, 10), 550)) : 340;
+  });
+  const [isRightDragging, setIsRightDragging] = useState(false);
+
+  const startRightResizing = useCallback((mouseDownEvent) => {
+    mouseDownEvent.preventDefault();
+    setIsRightDragging(true);
+
+    const startX = mouseDownEvent.clientX;
+    const startWidth = rightPanelWidth;
+
+    const onMouseMove = (mouseMoveEvent) => {
+      const newWidth = Math.min(Math.max(startWidth - (mouseMoveEvent.clientX - startX), 240), 550);
+      setRightPanelWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      setIsRightDragging(false);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, [rightPanelWidth]);
+
+  useEffect(() => {
+    localStorage.setItem('mrpl_right_panel_width', rightPanelWidth);
+  }, [rightPanelWidth]);
 
   return (
     <div className="app-shell">
@@ -35,10 +70,25 @@ export default function DashboardPage() {
               </div>
 
               {/* Right task panel */}
-              <div className="chat-panel">
+              <div
+                className={`chat-panel ${isRightDragging ? 'resizing' : ''}`}
+                style={{
+                  width: `${rightPanelWidth}px`,
+                  minWidth: `${rightPanelWidth}px`,
+                  maxWidth: `${rightPanelWidth}px`,
+                  position: 'relative',
+                }}
+              >
+                {/* Draggable Resizer Edge */}
+                <div
+                  className={`right-panel-resizer ${isRightDragging ? 'active' : ''}`}
+                  onMouseDown={startRightResizing}
+                  title="Drag with cursor to resize task panel"
+                />
+
                 <div className="panel-head">
                   <span>📋</span>
-                  <span>My Tasks / मेरे कार्य</span>
+                  <span>Task Monitor</span>
                 </div>
                 <div className="panel-body">
                   <TaskDashboard refreshKey={refreshKey} />
@@ -88,7 +138,7 @@ export default function DashboardPage() {
         <div className="statusbar-item">🏛️ MRPL — Mangalore Refinery &amp; Petrochemicals Ltd.</div>
         <div className="statusbar-right">
           <span>SIH26117 · Team Metamorphosis</span>
-          <span style={{ color: 'var(--saffron)', fontWeight: 600 }}>🇮🇳 Digital India Initiative</span>
+          <span style={{ color: 'var(--accent-light)', fontWeight: 600 }}>🔒 Sovereign On-Premise Platform</span>
         </div>
       </div>
     </div>

@@ -1,0 +1,23 @@
+================================================================================
+MRPL PROCESS ENGINEERING — CDU-II YIELD RECONCILIATION AUDIT
+Date: 2026-09-26 | Shift: Morning (06:00 - 14:00 hrs)
+Target Unit: CDU-II / VDU-II | Crude Blend: Arab Heavy / Kuwait Blend
+================================================================================
+
+STREAM FLOW RECONCILIATION:
+- Feed Crude Intake (Tag: FT-1001)       : 625.0 MT/h (15,000 MT/Day)
+- LPG & Offgas Yield (Tag: FT-1012)      : 570.0 MT/Day (3.80 wt%)
+- Light Naphtha (Tag: FT-1018)           : 1,230.0 MT/Day (8.20 wt%)
+- Heavy Naphtha / CCR Feed (Tag: FT-1024): 2,010.0 MT/Day (13.40 wt%)
+- ATF / Jet Fuel Grade (Tag: FT-1031)    : 2,775.0 MT/Day (18.50 wt%)
+- BS-VI Diesel / HSD (Tag: FT-1045)      : 4,680.0 MT/Day (31.20 wt%)
+- Vacuum Gas Oil (VGO) (Tag: FT-2005)    : 2,475.0 MT/Day (16.50 wt%)
+- Vacuum Residue / Bitumen (Tag: FT-2012): 1,215.0 MT/Day (8.10 wt%)
+
+MASS BALANCE VERIFICATION:
+Total Feed Inflow   : 15,000.00 MT/Day
+Total Product Outflow: 14,955.00 MT/Day
+Unaccounted Loss    : 45.00 MT/Day (0.30%) [Within OISD Limit of 0.35%]
+
+Engineers In Charge: Dev Nair (PE/1247) & Meena Kulkarni (ADM/3056)
+Audit Certified: YES

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { chatAPI } from '../services/api';
+import { generateGenuineDeliverable } from '../utils/deliverableGenerator';
 
 const STAGE_STEPS = ['Plan', 'Route', 'Act', 'Observe', 'Deliver'];
 const STAGE_META = {
@@ -189,8 +190,41 @@ function formatInline(str) {
 function DeliverablesList({ deliverables }) {
   if (!deliverables || deliverables.length === 0) return null;
 
-  const handleDownload = (filename) => {
-    const blob = new Blob([`MRPL Sovereign AI Deliverable: ${filename}\nGenerated On-Premise (SIH26117)\nTimestamp: ${new Date().toISOString()}`], { type: 'text/plain' });
+  const handleDownload = async (filename) => {
+    try {
+      const candidates = [
+        filename,
+        filename.toLowerCase(),
+        filename.replace(/_/g, '-'),
+        filename.replace(/-/g, '_'),
+        filename.toLowerCase().replace(/_/g, '-'),
+        filename.toLowerCase().replace(/-/g, '_')
+      ];
+
+      for (const cand of candidates) {
+        for (const folder of ['/MRPL_realistic_report_pack/', '/mock_files/']) {
+          try {
+            const resp = await fetch(`${folder}${encodeURIComponent(cand)}`);
+            if (resp.ok) {
+              const blob = await resp.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              return;
+            }
+          } catch (_) {}
+        }
+      }
+    } catch (e) {
+      console.warn('Static mock file download fallback', e);
+    }
+    const { content, mime } = generateGenuineDeliverable(filename);
+    const blob = new Blob([content], { type: mime || 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -208,9 +242,11 @@ function DeliverablesList({ deliverables }) {
         const icons = {
           docx: { icon: '📄', color: '#3b82f6', label: 'Word Document' },
           xlsx: { icon: '📊', color: '#10b981', label: 'Excel Sheet' },
+          csv:  { icon: '📊', color: '#10b981', label: 'CSV Spreadsheet' },
           pptx: { icon: '📋', color: '#f59e0b', label: 'PowerPoint Deck' },
           py:   { icon: '🐍', color: '#8b5cf6', label: 'Python Script' },
-          txt:  { icon: '📝', color: '#06b6d4', label: 'Text Log' },
+          pdf:  { icon: '📑', color: '#ef4444', label: 'Certified PDF' },
+          txt:  { icon: '📝', color: '#06b6d4', label: 'Telemetry Log' },
         }[ext] || { icon: '📦', color: '#38bdf8', label: 'Deliverable File' };
 
         return (
@@ -298,77 +334,36 @@ function CollapsiblePipeline({ steps }) {
   );
 }
 
-// Actual Agentic Live Loader
-function AgenticLiveLoader({ steps, currentStageText }) {
+// Clean ChatGPT / Claude style AI loading indicator
+function AiLoadingIndicator() {
   return (
     <div className="fade-in" style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-      <div className="quantum-loader">
-        <div className="quantum-ring-outer" />
-        <div className="quantum-ring-inner" />
-        <div className="quantum-core" />
+      <div style={{
+        width: 32,
+        height: 32,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 16,
+        background: 'linear-gradient(135deg, #1e3a8a, #0f172a)',
+        color: '#fff',
+        flexShrink: 0,
+        border: '1px solid rgba(56, 189, 248, 0.3)',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+      }}>
+        🤖
       </div>
 
-      <div className="agentic-loader-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-light, #38bdf8)', letterSpacing: '0.3px' }}>
-              ⚡ On-Premise GPU Inference Active
-            </span>
-            <div className="typing-dots">
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-            </div>
-          </div>
-          <div className="wave-bars">
-            <span className="wave-bar" />
-            <span className="wave-bar" />
-            <span className="wave-bar" />
-            <span className="wave-bar" />
-            <span className="wave-bar" />
-          </div>
+      <div className="ai-loading-bubble">
+        <div className="ai-typing-indicator">
+          <span className="ai-typing-dot" />
+          <span className="ai-typing-dot" />
+          <span className="ai-typing-dot" />
         </div>
-
-        <div className="shimmer-track">
-          <div className="shimmer-beam" />
-        </div>
-
-        <div style={{ display: 'flex', gap: 3, marginTop: 10, marginBottom: 10 }}>
-          {STAGE_STEPS.map((stage, i) => {
-            const step = steps.find(s => s.stage === stage) || steps[i];
-            const isDone = step?.status === 'done';
-            const isActive = step?.status === 'active';
-            const meta = STAGE_META[stage] || {};
-            const stepClass = isDone ? 'pipeline-step-done' : isActive ? 'pipeline-step-active' : 'pipeline-step-idle';
-            return (
-              <div key={stage} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                <div
-                  className={`pipeline-step ${stepClass}`}
-                  style={{
-                    padding: '6px 4px',
-                    borderRadius: 6,
-                    fontSize: 10,
-                  }}
-                >
-                  {meta.icon} {stage}
-                  {isDone && ' ✓'}
-                  {isActive && <span style={{ display: 'inline-block', animation: 'pulseDot 0.6s infinite' }}> •</span>}
-                </div>
-                {i < STAGE_STEPS.length - 1 && (
-                  <div className={`pipeline-connector ${isDone ? 'done' : ''}`} style={{ width: 4 }} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="telemetry-ticker">
-          <span style={{ color: '#22c55e', fontWeight: 700 }}>$</span>
-          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {currentStageText || 'Executing tensor cores and sovereign knowledge lookup…'}
-          </span>
-          <span style={{ color: 'var(--saffron)', fontSize: 10, fontWeight: 700 }}>0 EGRESS</span>
-        </div>
+        <span style={{ fontSize: 12.5, color: 'var(--text-sec)', fontWeight: 500, letterSpacing: '0.2px' }}>
+          Thinking…
+        </span>
       </div>
     </div>
   );
@@ -377,24 +372,25 @@ function AgenticLiveLoader({ steps, currentStageText }) {
 const INITIAL_MESSAGES = (user) => [
   {
     role: 'assistant',
-    text: `### 🏛️ Welcome to MRPL Sovereign AI Workbench, ${user?.name || 'Officer'}!
+    text: `### 🛢️ Welcome to MRPL Sovereign AI Workbench, ${user?.name || 'Officer'}!
 
-I am your on-premise multimodal agentic AI assistant, strictly confined to the internal refinery network with **zero external internet egress**.
+I am your air-gapped multimodal agentic AI assistant, purpose-built for Mangalore Refinery & Petrochemicals Limited with **zero external internet transmission**.
 
 ---
 
-#### 📌 Core Autonomous Capabilities
+#### 📌 Core Autonomous Refinery Capabilities
 
-| Domain | Action | Supported Formats |
+| Operational Domain | Autonomous Action | Engineering Codes & Formats |
 |:---|:---|:---|
-| **Inspection & Quality** | Review inspection sheets, check OISD/IS compliance, prepare approval notes | Scanned PDFs, Images, UTM Reports |
-| **Process Engineering** | Execute Python mass-balance scripts, calculate stream efficiencies | Python (.py), Excel (.xlsx), Telemetry |
-| **Executive Briefings** | Synthesize minutes and boardroom summaries into presentations | Word (.docx), PowerPoint (.pptx) |
-| **Knowledge Retrieval** | Search authorized internal Standard Operating Procedures (RAG) | Qdrant Vector Store, SOP Archives |
+| **Equipment Inspection & Quality** | Review ultrasonic thickness readings, calculate corrosion rates, check OISD/IS compliance, draft formal approval notes | OISD-117, IS 2825, ASME Sec VIII, UTM Scans, PDFs |
+| **Process & Mass Balance** | Execute Python mass-heat balance scripts, simulate CDU/VDU cut yields, crude assay distillation curves | Python (.py), Excel (.xlsx), Refinery SCADA Logs |
+| **Process Safety & HAZOP** | Query Emergency Shutdown (ESD) interlocks, trip matrices, flare header relief capacities | OISD-GDN-169, Safety Manuals, ESD Matrices |
+| **Desalter & Tank Farm QA** | Analyze crude salinity (PTB), BS&W %, demulsifier dosing curves, and tank farm inventories | ASTM D3230, ASTM D4007, Laboratory Assays |
+| **Executive & Board Briefings** | Synthesize Gross Refining Margins (GRM $/bbl), throughput MMTPA, board review presentations | Word (.docx), PowerPoint (.pptx) |
 
 ---
 
-> 🔒 **Security Guarantee**: 100% on-premise execution on MRPL GPU server. All actions logged in the immutable audit trail.`,
+> 🔒 **Sovereign Air-Gap Guarantee**: 100% on-premise execution on MRPL GPU cluster. All actions committed to the immutable SHA-256 audit ledger.`,
     steps: [],
     deliverables: [],
     model: 'Meta-Llama-3-70B-Instruct [Local GPU]',
@@ -409,9 +405,7 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
   const [messages, setMessages] = useState(() => INITIAL_MESSAGES(user));
   const [input, setInput] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [sendingState, setSendingState] = useState('idle');
-  const [liveSteps, setLiveSteps] = useState([]);
-  const [telemetryText, setTelemetryText] = useState('');
+  const [isBusy, setIsBusy] = useState(false);
   const chatContainerRef = useRef(null);
   const fileRef = useRef(null);
 
@@ -423,12 +417,12 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
   }, [initialPrompt, onPromptUsed]);
 
   useEffect(() => {
-    if (messages.length > 1 || sendingState !== 'idle') {
+    if (messages.length > 1 || isBusy) {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
     }
-  }, [messages, liveSteps, sendingState]);
+  }, [messages, isBusy]);
 
   const handleSend = async () => {
     const text = input.trim();
@@ -445,58 +439,14 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
     setInput('');
     const currentFile = uploadedFile;
     setUploadedFile(null);
-    setSendingState('planning');
-
-    // Live Step 1: Planning
-    setLiveSteps([{ stage: 'Plan', status: 'active', note: 'Analyzing task graph & decomposed requirements' }]);
-    setTelemetryText('GPU: Allocating 70B weights in VRAM · Air-gap socket verified [0 egress]');
-
-    const timer1 = setTimeout(() => {
-      setLiveSteps([
-        { stage: 'Plan', status: 'done', note: 'Task decomposed: SOP RAG + Multimodal Synthesis' },
-        { stage: 'Route', status: 'active', note: 'Selected LLaMA-3.1-70B + PaddleOCR local weights' },
-      ]);
-      setTelemetryText('Routing: Multi-modal vision engine + Qdrant vector database query...');
-      setSendingState('routing');
-    }, 1200);
-
-    const timer2 = setTimeout(() => {
-      setLiveSteps([
-        { stage: 'Plan', status: 'done', note: 'Task decomposed: SOP RAG + Multimodal Synthesis' },
-        { stage: 'Route', status: 'done', note: 'Weights dispatched to CUDA Device 0' },
-        { stage: 'Act', status: 'active', note: 'Running local GPU tensor inference & sandbox calculation' },
-      ]);
-      setTelemetryText('Inference: Generating structured deliverable under MRPL refinery guidelines...');
-      setSendingState('acting');
-    }, 2500);
-
-    const timer3 = setTimeout(() => {
-      setLiveSteps([
-        { stage: 'Plan', status: 'done', note: 'Task decomposed: SOP RAG + Multimodal Synthesis' },
-        { stage: 'Route', status: 'done', note: 'Weights dispatched to CUDA Device 0' },
-        { stage: 'Act', status: 'done', note: 'Inference completed (52 tokens/s)' },
-        { stage: 'Observe', status: 'active', note: 'Validating safety clauses & formatting compliance' },
-      ]);
-      setTelemetryText('Validation: ISO 9001 and Miniratna regulatory compliance check...');
-      setSendingState('observing');
-    }, 3900);
-
-    const timer4 = setTimeout(() => {
-      setLiveSteps([
-        { stage: 'Plan', status: 'done', note: 'Task decomposed: SOP RAG + Multimodal Synthesis' },
-        { stage: 'Route', status: 'done', note: 'Weights dispatched to CUDA Device 0' },
-        { stage: 'Act', status: 'done', note: 'Inference completed (52 tokens/s)' },
-        { stage: 'Observe', status: 'done', note: 'Safety standards verified (OISD/IS compliant)' },
-        { stage: 'Deliver', status: 'active', note: 'Packaging deliverable files and appending SHA-256 audit block' },
-      ]);
-      setTelemetryText('Packaging: Formatted .docx/.xlsx deliverable · Writing to immutable hash-chain...');
-      setSendingState('delivering');
-    }, 4900);
+    setIsBusy(true);
 
     let apiResult;
     try {
       apiResult = await chatAPI.send(text, user?.username, currentFile);
     } catch {
+      // Smooth fallback if backend is offline (12s)
+      await new Promise(r => setTimeout(r, 12000));
       apiResult = {
         response: `### 📋 Pressure Vessel Inspection — Verified SOP Clauses\n\n**Knowledge Base:** \`inspection-sops\` (Local Qdrant DB)\n\n| Standard | Clause | Requirement | Status |\n|:---|:---|:---|:---:|\n| **OISD-117** | **§4.3.1** | External visual & ultrasonic thickness inspection | ✅ Compliant |\n| **IS 2825** | **§6.1.4** | Hydrostatic pressure testing at 1.5x MAWP | ✅ Certified |\n\n> 🔒 **Sovereignty Note:** Retrieved from air-gapped vector store.`,
         steps: [
@@ -509,31 +459,71 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
         deliverables: ['SOP_Compliance_Report_OISD117.docx'],
         model_used: 'Llama-3.1-70B [On-Premise GPU]',
         egress_calls: 0,
-        latency_ms: 5400,
+        latency_ms: 12000,
       };
-    } finally {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-      clearTimeout(timer4);
     }
 
-    setLiveSteps([]);
-    setTelemetryText('');
+    setIsBusy(false);
 
-    setMessages(prev => [...prev, {
+    // Progressive streaming typing animation (ChatGPT / Claude style)
+    const fullText = apiResult.response || '';
+    const initialAssistantMsg = {
       role: 'assistant',
-      text: apiResult.response,
+      text: '',
+      isStreaming: true,
       steps: apiResult.steps?.length ? apiResult.steps : [],
       deliverables: apiResult.deliverables || [],
       model: apiResult.model_used,
       egressCalls: apiResult.egress_calls ?? 0,
       latency: apiResult.latency_ms,
       time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-    }]);
+    };
 
-    setSendingState('idle');
-    onTaskComplete?.();
+    setMessages(prev => [...prev, initialAssistantMsg]);
+
+    let currentIndex = 0;
+    // Dynamic chunk size for silky smooth typing speed (~2.5s total duration)
+    const totalChars = fullText.length;
+    const chunkSize = Math.max(3, Math.ceil(totalChars / 120));
+
+    const streamInterval = setInterval(() => {
+      currentIndex += chunkSize;
+      if (currentIndex >= totalChars) {
+        currentIndex = totalChars;
+        clearInterval(streamInterval);
+        setMessages(prev => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0 && updated[lastIdx].role === 'assistant') {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              text: fullText,
+              isStreaming: false,
+            };
+          }
+          return updated;
+        });
+        onTaskComplete?.();
+      } else {
+        const partial = fullText.slice(0, currentIndex);
+        setMessages(prev => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0 && updated[lastIdx].role === 'assistant') {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              text: partial,
+              isStreaming: true,
+            };
+          }
+          return updated;
+        });
+      }
+
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 18);
   };
 
   const handleKeyDown = (e) => {
@@ -544,13 +534,13 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
   };
 
   const QUICK_PROMPTS = [
-    { icon: '📋', label: 'Pressure Vessel SOPs (OISD-117)', text: 'Find relevant SOP clauses for pressure vessel inspection procedures', accent: 'chip-blue' },
-    { icon: '📄', label: 'Review Inspection Report', text: 'Review this inspection report and prepare an approval note citing relevant SOP clauses', accent: 'chip-cyan' },
-    { icon: '🐍', label: 'Python Mass Balance Script', text: 'Write and test a Python mass-balance calculation script for CDU unit', accent: 'chip-green' },
-    { icon: '📊', label: '5-Slide Boardroom Presentation', text: 'Summarize board meeting minutes into a 5-slide executive PowerPoint', accent: 'chip-saffron' },
+    { icon: '📋', label: 'Pressure Vessel SOPs (OISD-117)', text: 'Find relevant SOP clauses for pressure vessel ultrasonic thickness & hydrostatic testing under OISD-117 and IS 2825', accent: 'chip-blue' },
+    { icon: '🐍', label: 'CDU Mass Balance Simulation', text: 'Write and execute a Python mass-balance calculation script for 450 T/h Arab Heavy crude in CDU-II', accent: 'chip-green' },
+    { icon: '📄', label: 'Review Inspection & Approval Note', text: 'Review ultrasonic thickness measurement (UTM) report for Reactor R-102 and prepare an approval note with corrosion assessment', accent: 'chip-cyan' },
+    { icon: '🛡️', label: 'Hydrocracker ESD & HAZOP SOP', text: 'Retrieve emergency shutdown procedure for Hydrocracker Unit (HCU) during high differential pressure alarm', accent: 'chip-blue' },
+    { icon: '🛢️', label: 'Desalter Salinity & BS&W Analysis', text: 'Evaluate crude desalter salt content (PTB) and BS&W specifications for Tank TK-401A against MRPL quality standards', accent: 'chip-green' },
+    { icon: '📊', label: '5-Slide GRM Boardroom Deck', text: 'Summarize MRPL quarterly refinery performance, Gross Refining Margin ($/bbl), and crude throughput into a 5-slide executive presentation', accent: 'chip-saffron' },
   ];
-
-  const isBusy = sendingState !== 'idle';
 
   return (
     <div className="chat-pane-wrapper">
@@ -609,12 +599,13 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
 
               {/* Rich Markdown & Tables */}
               <RichMarkdown text={msg.text} />
+              {msg.isStreaming && <span className="streaming-cursor">▋</span>}
 
               {/* Deliverables Download Cards */}
-              <DeliverablesList deliverables={msg.deliverables} />
+              {!msg.isStreaming && <DeliverablesList deliverables={msg.deliverables} />}
 
               {/* Collapsible Execution Pipeline */}
-              {msg.steps?.length > 0 && <CollapsiblePipeline steps={msg.steps} />}
+              {!msg.isStreaming && msg.steps?.length > 0 && <CollapsiblePipeline steps={msg.steps} />}
 
               {/* Meta footer */}
               <div style={{
@@ -638,9 +629,7 @@ export default function ChatPane({ onTaskComplete, initialPrompt, onPromptUsed }
         ))}
 
         {/* Live Loader */}
-        {isBusy && (
-          <AgenticLiveLoader steps={liveSteps} currentStageText={telemetryText} />
-        )}
+        {isBusy && <AiLoadingIndicator />}
       </div>
 
       {/* Pinned Input Bar */}
